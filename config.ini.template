@@ -1,0 +1,5 @@
+[wos]
+host: localhost
+username: username
+password: password
+database: wos_tiny
