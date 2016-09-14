@@ -5,3 +5,9 @@
 ```sh
 $ ./get-wos-cs-papers.py -o wos-cs-papers.pickle
 ```
+
+## Check the ratio of WoS papers match titles in citegraph of CiteSeerX
+
+```sh
+$ ./sample-wos-cs-paper-in-citeseerx.py -i wos-cs-papers.pickle -r 30
+```
