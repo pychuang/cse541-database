@@ -30,6 +30,8 @@ def main(args, config):
         db = connect_db(config, 'wos')
         cursor = db.cursor()
         cs_papers = wos_cs_papers(cursor)
+        print "Retrieved %d CS papers from Web of Science database" % len(cs_papers)
+
         with open(args.output, 'wb') as f:
             pickle.dump(cs_papers, f)
     finally:
