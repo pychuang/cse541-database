@@ -3,3 +3,9 @@ host: localhost
 username: username
 password: password
 database: wos_tiny
+
+[citegraph]
+host: localhost
+username: username
+password: password
+database: csx_citegraph
