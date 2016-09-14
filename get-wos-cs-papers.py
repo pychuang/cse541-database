@@ -18,9 +18,9 @@ def wos_cs_papers(cursor):
 
 def connect_db(config, target):
     host = config.get(target, 'host')
-    username = config.get('wos', 'username')
-    password = config.get('wos', 'password')
-    database = config.get('wos', 'database')
+    username = config.get(target, 'username')
+    password = config.get(target, 'password')
+    database = config.get(target, 'database')
 
     return MySQLdb.connect(host=host, user=username, passwd=password, db=database)
 
