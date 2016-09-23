@@ -90,6 +90,7 @@ def get_ratios_of_matches_in_citegraph(papers):
     print "check whether papers match in citegraph"
     num_matched_clusters = 0
     matched_citations_ratios = []
+    matched_citations_jaccards = []
     try:
         db = connect_db(config, 'citegraph')
         cursor = db.cursor()
@@ -106,6 +107,7 @@ def get_ratios_of_matches_in_citegraph(papers):
             csx_citations = get_citations_in_citegraph(cursor, csx_clusterid)
             if not csx_citations:
                 continue
+            print '---'
             print 'WoS uids', paperid
             print 'TITLE:', title
             print 'CITATIONS:', citations
@@ -115,10 +117,14 @@ def get_ratios_of_matches_in_citegraph(papers):
             print 'CITATIONS:', csx_citations
             csx_titles_of_citations = [title for clusterid, title in csx_citations]
             matched_citations = match_titles(csx_titles_of_citations, citations)
+
             matched_citations_ratio = float(len(matched_citations)) / len(citations)
             print 'matched_citations_ratio', matched_citations_ratio
             matched_citations_ratios.append(matched_citations_ratio)
-            print '---'
+
+            matched_citations_jaccard = float(len(matched_citations)) / (len(citations) + len(csx_citations) - len(matched_citations))
+            print 'matched_citations_jaccard', matched_citations_jaccard
+            matched_citations_jaccards.append(matched_citations_jaccard)
     finally:
         if db:
             db.close()
@@ -129,6 +135,9 @@ def get_ratios_of_matches_in_citegraph(papers):
     if matched_citations_ratios:
         avg_matched_citations_ratio = sum(matched_citations_ratios) / len(matched_citations_ratios)
         print "average citations matching ratio: %f" % avg_matched_citations_ratio
+    if matched_citations_jaccards:
+        avg_matched_citations_jaccard = sum(matched_citations_jaccards) / len(matched_citations_jaccards)
+        print 'avg_matched_citations_jaccard', avg_matched_citations_jaccard
     return ratio
 
 
