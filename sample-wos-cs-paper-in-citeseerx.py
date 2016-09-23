@@ -67,7 +67,7 @@ def match_title_in_citegraph(cursor, title):
         return result
 
 
-def match_citations_in_citegraph(cursor, clusterid):
+def get_citations_in_citegraph(cursor, clusterid):
     cursor.execute("""
         SELECT clusters.ctitle
         FROM citegraph, clusters
@@ -103,7 +103,7 @@ def get_ratios_of_matches_in_citegraph(papers):
 
             if not citations:
                 continue
-            csx_citations = match_citations_in_citegraph(cursor, csx_clusterid)
+            csx_citations = get_citations_in_citegraph(cursor, csx_clusterid)
             if not csx_citations:
                 continue
             print "TITLE: %s\n%s" % (title, citations)
