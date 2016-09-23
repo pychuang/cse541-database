@@ -46,7 +46,7 @@ def get_wos_papers(paperids):
             title = get_wos_paper_title(cursor, paperid)
             citations = get_wos_paper_citations(cursor, paperid)
 
-            papers.append((title, citations))
+            papers.append((paperid, title, citations))
     finally:
         if db:
             db.close()
@@ -69,12 +69,12 @@ def match_title_in_citegraph(cursor, title):
 
 def get_citations_in_citegraph(cursor, clusterid):
     cursor.execute("""
-        SELECT clusters.ctitle
+        SELECT clusters.id, clusters.ctitle
         FROM citegraph, clusters
         WHERE citegraph.citing = %s AND clusters.id = citegraph.cited;""", (clusterid,))
 
     result = cursor.fetchall()
-    return [d[0] for d in result]
+    return [(clusterid, title) for clusterid, title in result]
 
 
 def normalize_title(title):
@@ -93,7 +93,7 @@ def get_ratios_of_matches_in_citegraph(papers):
     try:
         db = connect_db(config, 'citegraph')
         cursor = db.cursor()
-        for title, citations in papers:
+        for paperid, title, citations in papers:
             #print "TITLE: %s\t%s" % (title, citations)
             csx_clusterid, csx_title = match_title_in_citegraph(cursor, title)
             if csx_clusterid is None:
@@ -106,10 +106,15 @@ def get_ratios_of_matches_in_citegraph(papers):
             csx_citations = get_citations_in_citegraph(cursor, csx_clusterid)
             if not csx_citations:
                 continue
-            print "TITLE: %s\n%s" % (title, citations)
+            print 'WoS uids', paperid
+            print 'TITLE:', title
+            print 'CITATIONS:', citations
             print
-            print "CSX CLUSTER %d\nTITLE: %s\nCITATIONS: %s" % (csx_clusterid, csx_title, csx_citations)
-            matched_citations = match_titles(csx_citations, citations)
+            print 'CSX cluster', csx_clusterid
+            print 'TITLE:', csx_title
+            print 'CITATIONS:', csx_citations
+            csx_titles_of_citations = [title for clusterid, title in csx_citations]
+            matched_citations = match_titles(csx_titles_of_citations, citations)
             matched_citations_ratio = float(len(matched_citations)) / len(citations)
             print 'matched_citations_ratio', matched_citations_ratio
             matched_citations_ratios.append(matched_citations_ratio)
@@ -121,8 +126,9 @@ def get_ratios_of_matches_in_citegraph(papers):
     ratio = float(num_matched_clusters) / len(papers)
     print "%d out of %d sampled WoS papers match titles of clusters in citegraph database in CiteSeerX (%f)" % (num_matched_clusters, len(papers), ratio)
 
-    avg_matched_citations_ratio = sum(matched_citations_ratios) / len(matched_citations_ratios)
-    print "average citations matching ratio: %f" % avg_matched_citations_ratio
+    if matched_citations_ratios:
+        avg_matched_citations_ratio = sum(matched_citations_ratios) / len(matched_citations_ratios)
+        print "average citations matching ratio: %f" % avg_matched_citations_ratio
     return ratio
 
 
