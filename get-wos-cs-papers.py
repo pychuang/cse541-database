@@ -8,9 +8,9 @@ import pickle
 
 def wos_cs_papers(cursor):
     cursor.execute("""
-        SELECT DISTINCT uid FROM papers, subjects
-        WHERE papers.uid = subjects.paperid AND subjects.subject
-        LIKE 'computer%';""")
+        SELECT DISTINCT uid
+        FROM papers, subjects
+        WHERE papers.uid = subjects.paperid AND subjects.subject LIKE 'computer%';""")
 
     result = cursor.fetchall()
     return [d[0] for d in result]
