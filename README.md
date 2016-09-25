@@ -17,3 +17,8 @@ $ ./sample-wos-cs-paper-in-citeseerx.py -i wos-cs-papers.pickle -r 30
 ```sh
 $ ./sample-wos-cs-paper-citation-in-citeseerx.py -i wos-cs-papers.pickle -r 30
 ```
+
+## Get citations of CS papers in WoS
+```sh
+$ ./get-wos-cs-papers-citations.py -o wos-cs-papers-citations.csv
+```
