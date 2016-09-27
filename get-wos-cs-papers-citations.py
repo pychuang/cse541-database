@@ -41,8 +41,10 @@ def main(args, config):
             for result in ResultIter(cursor, 1000):
                 count += 1
                 csvwriter.writerow(result)
-                print "\r%d rows written" % count,
-            print
+                if count % 100 == 0:
+                    print "\r%d rows written" % count,
+            print "\r",
+            print "totally %d rows" % count
     finally:
         if db:
             db.close()
