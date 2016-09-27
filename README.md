@@ -3,7 +3,7 @@
 ## Get CS-related papers in WoS dataset
 
 ```sh
-$ ./get-wos-cs-papers.py -o wos-cs-papers.pickle
+$ ./get-wos-cs-papers.py -o wos-cs-papers.csv
 ```
 
 ## Check the ratio of WoS papers match titles in citegraph of CiteSeerX
