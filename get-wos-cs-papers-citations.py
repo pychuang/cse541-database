@@ -44,7 +44,7 @@ def main(args, config):
                 if count % 100 == 0:
                     print "\r%d rows written" % count,
             print "\r",
-            print "totally %d rows" % count
+            print "totally %d rows written" % count
     finally:
         if db:
             db.close()
