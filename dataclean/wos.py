@@ -1,29 +1,18 @@
-from . import paper
+from . import paper_base
 from . import utils
 
-class WosPaper(paper.Paper):
+class WosPaper(paper_base.PaperBase):
 
-    papers = {}
-
-    def __init__(self, paper_id, *args, **kwargs):
+    def __init__(self, *args, **kwargs):
         super(WosPaper, self).__init__(*args, **kwargs)
-        self.paper_id = paper_id
         self.citations = []
-        WosPaper.papers[paper_id] = self
 
 
-    def __str__(self):
-        return "%s T:%s A:%s V:%s Y:%s"  % (self.paper_id, self.title, self.authors, self.venue, self.year)
-
-
-    def __repr__(self):
-        return "<%s T:%s A:%s V:%s Y:%s>"  % (self.paper_id, self.title, self.authors, self.venue, self.year)
-
-
-def get_wos_paper_by_id(cursor, paper_id):
-    if paper_id in WosPaper.papers:
-        print 'found', paper_id, 'in cache'
-        return WosPaper.papers[paper_id]
+def get_paper_by_id(cursor, paper_id):
+    paper = WosPaper.find_cached_paper(paper_id)
+    if paper:
+        print '** found', paper_id, 'in cache'
+        return paper
 
     cursor.execute("""
         SELECT title, pubname
@@ -40,7 +29,7 @@ def get_wos_paper_by_id(cursor, paper_id):
 
 def get_citations(cursor, paper):
     if paper.citations:
-        print 'found citations of', paper.paper_id
+        print '** found citations of', paper.paper_id
         return paper.citations
 
     cursor.execute("""
@@ -54,9 +43,9 @@ def get_citations(cursor, paper):
             continue
         if not citedTitle:
             continue
-        if uid in WosPaper.papers:
-            print 'found citation', uid, 'in cache'
-            cp = WosPaper.papers[uid]
+        cp = WosPaper.find_cached_paper(uid)
+        if cp:
+            print '** found citation', uid, 'in cache'
             if not cp.venue:
                 cp.venue = citedTitle
             if not cp.year:
