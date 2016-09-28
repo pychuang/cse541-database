@@ -6,7 +6,8 @@ import csv
 import MySQLdb
 import sys
 
-from dataclean import wos
+import dataclean.wos as wos
+import dataclean.citeseerx as csx
 
 wos_cursor = None
 csx_cursor = None
@@ -22,15 +23,25 @@ def connect_db(config, target):
 
 
 def match(wos_paperid):
-    wos_paper = wos.get_wos_paper_by_id(wos_cursor, wos_paperid)
+    wos_paper = wos.get_paper_by_id(wos_cursor, wos_paperid)
     print wos_paper
-#    wos_paper = wos.get_wos_paper_by_id(wos_cursor, wos_paperid)
+#    wos_paper = wos.get_paper_by_id(wos_cursor, wos_paperid)
 #    print wos_paper
 
     wos_citations = wos.get_citations(wos_cursor, wos_paper)
-    print wos_citations
+#    print wos_citations
 #    wos_citations = wos.get_citations(wos_cursor, wos_paper)
 #    print wos_citations
+
+    for wos_citation in wos_citations:
+        csx_clusters = csx.find_cluster_by_title(csx_cursor, wos_citation.title)
+        if not csx_clusters:
+            continue
+        print 'CLUSTER', csx_clusters
+        if len(csx_clusters) > 1:
+            print 'more than one cluster found'
+            return
+
 
 def main(args, config):
     global wos_cursor
