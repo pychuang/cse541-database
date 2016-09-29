@@ -22,48 +22,50 @@ class CsxCluster(paper_base.PaperBase):
         return self.citedby
 
 
-def get_cluster_by_id(cursor, cluster_id):
-    cluster = CsxCluster.find_cached_paper(cluster_id)
-    if cluster:
+    @classmethod
+    def get_cluster_by_id(cls, cursor, cluster_id):
+        cluster = cls.find_cached_paper(cluster_id)
+        if cluster:
+            return cluster
+
+        cursor.execute("""
+            SELECT ctitle, cvenue, cyear
+            FROM clusters
+            WHERE id = %s;""", (cluster_id, ))
+        result = cursor.fetchone()
+        if not result:
+            return None
+
+        ctitle, cvenue, cyear = result
+        cluster = cls(cluster_id, title=ctitle, venue=cvenue, year=cyear)
         return cluster
 
-    cursor.execute("""
-        SELECT ctitle, cvenue, cyear
-        FROM clusters
-        WHERE id = %s;""", (cluster_id, ))
-    result = cursor.fetchone()
-    if not result:
-        return None
 
-    ctitle, cvenue, cyear = result
-    cluster = CsxCluster(cluster_id, title=ctitle, venue=cvenue, year=cyear)
-    return cluster
+    @classmethod
+    def find_clusters_by_title(cls, solr_url, title):
+        if not title:
+            return None
 
+        clusters = []
+        q = "title:\"%s\"" % title
+        for doc in utils.query_solr_iter(solr_url, q):
+            cluster_id = doc['id']
+            cluster = cls.find_cached_paper(cluster_id)
+            if not cluster:
+                if 'title' not in doc:
+                    continue
 
-def find_clusters_by_title(solr_url, title):
-    if not title:
-        return None
+                title = doc['title']
+                if 'venue' in doc:
+                    venue = doc['venue']
+                else:
+                    venue = None
+                if 'year' in doc:
+                    year = doc['year']
+                else:
+                    year = None
 
-    clusters = []
-    q = "title:\"%s\"" % title
-    for doc in utils.query_solr_iter(solr_url, q):
-        cluster_id = doc['id']
-        cluster = CsxCluster.find_cached_paper(cluster_id)
-        if not cluster:
-            if 'title' not in doc:
-                continue
+                cluster = cls(cluster_id, title=title, venue=venue, year=year)
+            clusters.append(cluster)
 
-            title = doc['title']
-            if 'venue' in doc:
-                venue = doc['venue']
-            else:
-                venue = None
-            if 'year' in doc:
-                year = doc['year']
-            else:
-                year = None
-
-            cluster = CsxCluster(cluster_id, title=title, venue=venue, year=year)
-        clusters.append(cluster)
-
-    return clusters
+        return clusters

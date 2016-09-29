@@ -26,10 +26,10 @@ def connect_db(config, target):
 
 
 def match(wos_paperid, n):
-    wos_paper = wos.get_paper_by_id(wos_cursor, wos_paperid)
+    wos_paper = wos.WosPaper.get_paper_by_id(wos_cursor, wos_paperid)
     print("WOS: %s" % wos_paper)
 
-    csx_clusters = csx.find_clusters_by_title(solr_url, wos_paper.title)
+    csx_clusters = csx.CsxCluster.find_clusters_by_title(solr_url, wos_paper.title)
     print("CSX: %d clusters" % len(csx_clusters))
     for csx_cluster in csx_clusters:
         print("\tCSX: %s" % csx_cluster)

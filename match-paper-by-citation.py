@@ -26,15 +26,15 @@ def connect_db(config, target):
 
 
 def match(wos_paperid, n):
-    wos_paper = wos.get_paper_by_id(wos_cursor, wos_paperid)
-    wos_citations = wos.get_citations(wos_cursor, wos_paper)
+    wos_paper = wos.WosPaper.get_paper_by_id(wos_cursor, wos_paperid)
+    wos_citations = wos.WosPaper.get_citations(wos_cursor, wos_paper)
     print("WOS: %s" % wos_paper)
     print("WOS: %d citations" % len(wos_citations))
 
     candidate_csx_clusters_ids = collections.defaultdict(int)
     for wos_citation in wos_citations:
         #print("\tWOS citation: %s" % wos_citation)
-        csx_citations = csx.find_clusters_by_title(solr_url, wos_citation.title)
+        csx_citations = csx.CsxCluster.find_clusters_by_title(solr_url, wos_citation.title)
         if not csx_citations:
             continue
 
@@ -47,7 +47,7 @@ def match(wos_paperid, n):
     print("%d candidate CSX clusters" % len(candidate_csx_clusters_ids))
     sorted_candidate_clusters_ids = sorted(candidate_csx_clusters_ids.items(), key=lambda x: x[1], reverse=True)
     for cluster_id, count in sorted_candidate_clusters_ids[:n]:
-        cluster = csx.get_cluster_by_id(csx_cursor, cluster_id)
+        cluster = csx.CsxCluster.get_cluster_by_id(csx_cursor, cluster_id)
         print("%s : count=%d" % (cluster, count))
 
 
