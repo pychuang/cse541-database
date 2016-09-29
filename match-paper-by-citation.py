@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import argparse
+import collections
 import ConfigParser
 import csv
 import MySQLdb
@@ -9,8 +10,10 @@ import sys
 import dataclean.wos as wos
 import dataclean.citeseerx as csx
 
+
 wos_cursor = None
 csx_cursor = None
+solr_url = None
 
 
 def connect_db(config, target):
@@ -25,27 +28,34 @@ def connect_db(config, target):
 def match(wos_paperid):
     wos_paper = wos.get_paper_by_id(wos_cursor, wos_paperid)
     print wos_paper
-#    wos_paper = wos.get_paper_by_id(wos_cursor, wos_paperid)
-#    print wos_paper
-
     wos_citations = wos.get_citations(wos_cursor, wos_paper)
-#    print wos_citations
-#    wos_citations = wos.get_citations(wos_cursor, wos_paper)
-#    print wos_citations
 
+    '''
+    csx_clusters = csx.find_clusters_by_title(csx_cursor, wos_paper.title)
+    if not csx_clusters:
+        return
+    '''
+
+    csx_cluster_candidates = collections.defaultdict(int)
     for wos_citation in wos_citations:
-        csx_clusters = csx.find_cluster_by_title(csx_cursor, wos_citation.title)
-        if not csx_clusters:
+        csx_citations = csx.find_clusters_by_title(csx_cursor, wos_citation.title)
+        if not csx_citations:
             continue
-        print 'CLUSTER', csx_clusters
-        if len(csx_clusters) > 1:
-            print 'more than one cluster found'
-            return
+
+        for csx_citation in csx_citations:
+            csx_citing_clusters = csx_citation.find_citing_clusters(solr_url)
+            for csx_citing_cluster in csx_citing_clusters:
+                csx_cluster_candidates[csx_citing_cluster] += 1
+    sorted_candidates = sorted(csx_cluster_candidates.items(), key=lambda x: x[1], reverse=True)
+    print sorted_candidates[:3]
 
 
 def main(args, config):
     global wos_cursor
     global csx_cursor
+    global solr_url
+
+    solr_url = config.get('solr', 'url')
 
     if args.infile:
         inf = open(args.infile, 'rb')
