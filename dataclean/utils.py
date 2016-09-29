@@ -28,8 +28,11 @@ def query_solr_iter(solr_url, q, limit=0):
     start = 0
     rows = 1000
     while True:
-        if limit and start + rows > limit:
-            rows = limit - start
+        if limit:
+            if start >= limit:
+                break
+            if start + rows > limit:
+                rows = limit - start
         result = query_solr(solr_url, q, start, rows)
         response = result['response']
         docs = response['docs']
@@ -37,6 +40,6 @@ def query_solr_iter(solr_url, q, limit=0):
             break
         for doc in docs:
             yield doc
-        start += len(docs)
-        if limit and start > limit:
+        if len(docs) < rows:
             break
+        start += len(docs)
