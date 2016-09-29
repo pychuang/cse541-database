@@ -24,8 +24,7 @@ class CsxCluster(paper_base.PaperBase):
 
         self.citedby = []
         q = "cites:%d" % self.paper_id
-        result = utils.query_solr(solr_url, q)
-        for doc in utils.docs_of_solr_result(result):
+        for doc in utils.query_solr_iter(solr_url, q):
             cluster_id = doc['id']
             cluster = CsxCluster.find_cached_paper(cluster_id)
             if not cluster:

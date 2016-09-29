@@ -10,7 +10,7 @@ def result_iter(cursor, size=1000):
             yield result
 
 
-def query_solr(solr_url, q, start=0, rows=10):
+def query_solr(solr_url, q, start, rows):
     params = {
         'q': q,
         'start': start,
@@ -19,11 +19,24 @@ def query_solr(solr_url, q, start=0, rows=10):
     r = requests.get(solr_url, params=params)
     if r.status_code != 200:
         print("Failed to query %s with params=%s" % (solr_url, params))
-        return None
+        return []
 
     return r.json()
 
 
-def docs_of_solr_result(result):
-    response = result['response']
-    return response['docs']
+def query_solr_iter(solr_url, q, limit=0):
+    start = 0
+    rows = 1000
+    while True:
+        if limit and start + rows > limit:
+            rows = limit - start
+        result = query_solr(solr_url, q, start, rows)
+        response = result['response']
+        docs = response['docs']
+        if not docs:
+            break
+        for doc in docs:
+            yield doc
+        start += len(docs)
+        if limit and start > limit:
+            break
