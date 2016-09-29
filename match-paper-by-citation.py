@@ -28,16 +28,19 @@ def connect_db(config, target):
 def match(wos_paperid, n):
     wos_paper = wos.get_paper_by_id(wos_cursor, wos_paperid)
     wos_citations = wos.get_citations(wos_cursor, wos_paper)
-    print("%s : %d citations" % (wos_paper, len(wos_citations)))
+    print("WOS: %s" % wos_paper)
+    print("WOS: %d citations" % len(wos_citations))
 
     candidate_csx_clusters_ids = collections.defaultdict(int)
     for wos_citation in wos_citations:
+        #print("\tWOS citation: %s" % wos_citation)
         csx_citations = csx.find_clusters_by_title(solr_url, wos_citation.title)
         if not csx_citations:
             continue
 
-        #print("%d CSX citations" % len(csx_citations))
+        #print("\tCSX: %d citations" % len(csx_citations))
         for csx_citation in csx_citations:
+            #print("\tCSX: %s" % csx_citation)
             csx_citing_clusters_ids = csx_citation.find_citing_clusters_ids(csx_cursor)
             for csx_citing_cluster_id in csx_citing_clusters_ids:
                 candidate_csx_clusters_ids[csx_citing_cluster_id] += 1

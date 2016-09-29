@@ -25,8 +25,8 @@ class PaperBase(object):
 
 
     def __str__(self):
-        return "%s T:%s A:%s V:%s Y:%s"  % (self.paper_id, self.title, self.authors, self.venue, self.year)
+        return "%s\tT:%s A:%s V:%s Y:%s"  % (self.paper_id, self.title, self.authors, self.venue, self.year)
 
 
     def __repr__(self):
-        return "<%s T:%s A:%s V:%s Y:%s>"  % (self.paper_id, self.title, self.authors, self.venue, self.year)
+        return "<%s\tT:%s A:%s V:%s Y:%s>"  % (self.paper_id, self.title, self.authors, self.venue, self.year)
