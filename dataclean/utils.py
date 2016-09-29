@@ -18,7 +18,7 @@ def query_solr(solr_url, q, start=0, rows=10):
     }
     r = requests.get(solr_url, params=params)
     if r.status_code != 200:
-        print "Failed to query %s with params=%s" % (solr_url, params)
+        print("Failed to query %s with params=%s" % (solr_url, params))
         return None
 
     return r.json()

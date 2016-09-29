@@ -1,8 +1,8 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 import argparse
 import collections
-import ConfigParser
+import configparser
 import csv
 import MySQLdb
 import sys
@@ -27,7 +27,7 @@ def connect_db(config, target):
 
 def match(wos_paperid):
     wos_paper = wos.get_paper_by_id(wos_cursor, wos_paperid)
-    print wos_paper
+    print(wos_paper)
     wos_citations = wos.get_citations(wos_cursor, wos_paper)
 
     '''
@@ -47,7 +47,7 @@ def match(wos_paperid):
             for csx_citing_cluster in csx_citing_clusters:
                 csx_cluster_candidates[csx_citing_cluster] += 1
     sorted_candidates = sorted(csx_cluster_candidates.items(), key=lambda x: x[1], reverse=True)
-    print sorted_candidates[:3]
+    print(sorted_candidates[:3])
 
 
 def main(args, config):
@@ -72,7 +72,7 @@ def main(args, config):
 
         csvreader = csv.reader(inf)
         for row in csvreader:
-            print
+            print()
             wos_paperid = row[0]
             csx_clusterid = match(wos_paperid)
     finally:
@@ -83,7 +83,7 @@ def main(args, config):
 
 
 if __name__ == '__main__':
-    config = ConfigParser.ConfigParser()
+    config = configparser.ConfigParser()
     config.read('config.ini')
 
     parser = argparse.ArgumentParser(description='Match papers of Web of Science and clusters of citegraph of CiteSeerX.')
