@@ -24,6 +24,18 @@ $ ./sample-wos-cs-paper-citation-in-citeseerx.py -i wos-cs-papers.pickle -r 30
 $ ./get-wos-cs-papers-citations.py -o wos-cs-papers-citations.csv
 ```
 
+## Match WoS and CiteSeerX papers directly
+
+```sh
+$ ./match-paper-directly.py -i test.csv
+```
+
+Randomly choose 1000 lines of the CSV file as input
+
+```sh
+$ shuf -n 1000 wos-cs-papers.csv | ./match-paper-directly.py
+```
+
 ## Match WoS and CiteSeerX papers using citations information
 
 ```sh
