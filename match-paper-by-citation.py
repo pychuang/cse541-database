@@ -25,29 +25,27 @@ def connect_db(config, target):
     return MySQLdb.connect(host=host, user=username, passwd=password, db=database)
 
 
-def match(wos_paperid):
+def match(wos_paperid, n):
     wos_paper = wos.get_paper_by_id(wos_cursor, wos_paperid)
-    print(wos_paper)
     wos_citations = wos.get_citations(wos_cursor, wos_paper)
+    print("%s : %d citations" % (wos_paper, len(wos_citations)))
 
-    '''
-    csx_clusters = csx.find_clusters_by_title(csx_cursor, wos_paper.title)
-    if not csx_clusters:
-        return
-    '''
-
-    csx_cluster_candidates = collections.defaultdict(int)
+    candidate_csx_clusters_ids = collections.defaultdict(int)
     for wos_citation in wos_citations:
-        csx_citations = csx.find_clusters_by_title(csx_cursor, wos_citation.title)
+        csx_citations = csx.find_clusters_by_title(solr_url, wos_citation.title)
         if not csx_citations:
             continue
 
+        #print("%d CSX citations" % len(csx_citations))
         for csx_citation in csx_citations:
-            csx_citing_clusters = csx_citation.find_citing_clusters(solr_url)
-            for csx_citing_cluster in csx_citing_clusters:
-                csx_cluster_candidates[csx_citing_cluster] += 1
-    sorted_candidates = sorted(csx_cluster_candidates.items(), key=lambda x: x[1], reverse=True)
-    print(sorted_candidates[:3])
+            csx_citing_clusters_ids = csx_citation.find_citing_clusters_ids(csx_cursor)
+            for csx_citing_cluster_id in csx_citing_clusters_ids:
+                candidate_csx_clusters_ids[csx_citing_cluster_id] += 1
+    print("%d candidate CSX clusters" % len(candidate_csx_clusters_ids))
+    sorted_candidate_clusters_ids = sorted(candidate_csx_clusters_ids.items(), key=lambda x: x[1], reverse=True)
+    for cluster_id, count in sorted_candidate_clusters_ids[:n]:
+        cluster = csx.get_cluster_by_id(csx_cursor, cluster_id)
+        print("%s : count=%d" % (cluster, count))
 
 
 def main(args, config):
@@ -74,7 +72,7 @@ def main(args, config):
         for row in csvreader:
             print()
             wos_paperid = row[0]
-            csx_clusterid = match(wos_paperid)
+            csx_clusterid = match(wos_paperid, int(args.n))
     finally:
         if wosdb:
             wosdb.close()
@@ -88,6 +86,7 @@ if __name__ == '__main__':
 
     parser = argparse.ArgumentParser(description='Match papers of Web of Science and clusters of citegraph of CiteSeerX.')
     parser.add_argument('-i', '--infile', help='Input CSV file of paper IDs of Web of Science')
+    parser.add_argument('-n', default=3, help='Max number of results')
 
     args = parser.parse_args()
     main(args, config)
