@@ -69,3 +69,43 @@ class CgCluster(paper_base.PaperBase):
             clusters.append(cluster)
 
         return clusters
+
+
+class CsxPaper(paper_base.PaperBase):
+
+    def __init__(self, *args, **kwargs):
+        super(CsxPaper, self).__init__(*args, **kwargs)
+        self.citedby = None
+
+
+    @classmethod
+    def get_paper_by_id(cls, cursor, paper_id):
+        paper = cls.find_cached_paper(paper_id)
+        if paper:
+            return paper
+
+        cursor.execute("""
+            SELECT title, venue, year
+            FROM papers
+            WHERE id = %s;""", (paper_id, ))
+        result = cursor.fetchone()
+        if not result:
+            return None
+
+        title, venue, year = result
+        paper = cls(paper_id, title=title, venue=venue, year=year)
+        return paper
+
+
+    @classmethod
+    def find_papers_ids_with_citations_matched_by_title(cls, cursor, title):
+        cursor.execute("""
+            SELECT paperid
+            FROM citations
+            WHERE title = %s;""", (title, ))
+
+        papers_ids = []
+        for result in utils.result_iter(cursor):
+            paper_id, = result
+            papers_ids.append(paper_id)
+        return papers_ids
