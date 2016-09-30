@@ -2,10 +2,10 @@ from . import paper_base
 from . import utils
 
 
-class CsxCluster(paper_base.PaperBase):
+class CgCluster(paper_base.PaperBase):
 
     def __init__(self, *args, **kwargs):
-        super(CsxCluster, self).__init__(*args, **kwargs)
+        super(CgCluster, self).__init__(*args, **kwargs)
         self.citedby = None
 
 

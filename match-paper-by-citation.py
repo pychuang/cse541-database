@@ -12,7 +12,7 @@ import dataclean.citeseerx as csx
 
 
 wos_cursor = None
-csx_cursor = None
+cg_cursor = None
 solr_url = None
 
 
@@ -31,29 +31,29 @@ def match(wos_paperid, n):
     print("WOS: %s" % wos_paper)
     print("WOS: %d citations" % len(wos_citations))
 
-    candidate_csx_clusters_ids = collections.defaultdict(int)
+    candidate_cg_clusters_ids = collections.defaultdict(int)
     for wos_citation in wos_citations:
-        #print("\tWOS citation: %s" % wos_citation)
-        csx_citations = csx.CsxCluster.find_clusters_by_title(solr_url, wos_citation.title)
-        if not csx_citations:
+        print("\tWOS citation: %s" % wos_citation)
+        cg_citations = csx.CgCluster.find_clusters_by_title(solr_url, wos_citation.title)
+        if not cg_citations:
             continue
 
-        #print("\tCSX: %d citations" % len(csx_citations))
-        for csx_citation in csx_citations:
-            #print("\tCSX: %s" % csx_citation)
-            csx_citing_clusters_ids = csx_citation.find_citing_clusters_ids(csx_cursor)
-            for csx_citing_cluster_id in csx_citing_clusters_ids:
-                candidate_csx_clusters_ids[csx_citing_cluster_id] += 1
-    print("%d candidate CSX clusters" % len(candidate_csx_clusters_ids))
-    sorted_candidate_clusters_ids = sorted(candidate_csx_clusters_ids.items(), key=lambda x: x[1], reverse=True)
+        print("\tCG: %d citations" % len(cg_citations))
+        for cg_citation in cg_citations:
+            print("\tCG: %s" % cg_citation)
+            cg_citing_clusters_ids = cg_citation.find_citing_clusters_ids(cg_cursor)
+            for cg_citing_cluster_id in cg_citing_clusters_ids:
+                candidate_cg_clusters_ids[cg_citing_cluster_id] += 1
+    print("%d candidate CG clusters" % len(candidate_cg_clusters_ids))
+    sorted_candidate_clusters_ids = sorted(candidate_cg_clusters_ids.items(), key=lambda x: x[1], reverse=True)
     for cluster_id, count in sorted_candidate_clusters_ids[:n]:
-        cluster = csx.CsxCluster.get_cluster_by_id(csx_cursor, cluster_id)
+        cluster = csx.CgCluster.get_cluster_by_id(cg_cursor, cluster_id)
         print("%s : count=%d" % (cluster, count))
 
 
 def main(args, config):
     global wos_cursor
-    global csx_cursor
+    global cg_cursor
     global solr_url
 
     solr_url = config.get('solr', 'url')
@@ -65,22 +65,22 @@ def main(args, config):
 
     try:
         wosdb = None
-        csxdb = None
+        cgdb = None
         wosdb = connect_db(config, 'wos')
-        csxdb = connect_db(config, 'citegraph')
+        cgdb = connect_db(config, 'citegraph')
         wos_cursor = wosdb.cursor()
-        csx_cursor = csxdb.cursor()
+        cg_cursor = cgdb.cursor()
 
         csvreader = csv.reader(inf)
         for row in csvreader:
             print()
             wos_paperid = row[0]
-            csx_clusterid = match(wos_paperid, int(args.n))
+            cg_clusterid = match(wos_paperid, int(args.n))
     finally:
         if wosdb:
             wosdb.close()
-        if csxdb:
-            csxdb.close()
+        if cgdb:
+            cgdb.close()
 
 
 if __name__ == '__main__':
