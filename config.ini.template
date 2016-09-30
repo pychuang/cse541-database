@@ -9,3 +9,12 @@ host: localhost
 username: username
 password: password
 database: csx_citegraph
+
+[csx]
+host: localhost
+username: username
+password: password
+database: citeseerx
+
+[solr]
+url: http://localhost:8080/solr/citeseerx/select
