@@ -100,7 +100,7 @@ class CsxPaper(paper_base.PaperBase):
     @classmethod
     def find_papers_ids_with_citations_matched_by_title(cls, cursor, title):
         cursor.execute("""
-            SELECT paperid
+            SELECT DISTINCT paperid
             FROM citations
             WHERE title = %s;""", (title, ))
 

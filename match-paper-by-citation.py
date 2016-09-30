@@ -39,11 +39,15 @@ def match(wos_paperid, n):
             continue
 
         #print("\tCG: %d citations" % len(cg_citations))
+        cg_citing_clusters_ids_set = set()
         for cg_citation in cg_citations:
             #print("\tCG: %s" % cg_citation)
             cg_citing_clusters_ids = cg_citation.find_citing_clusters_ids(cg_cursor)
-            for cg_citing_cluster_id in cg_citing_clusters_ids:
-                candidate_cg_clusters_ids[cg_citing_cluster_id] += 1
+            cg_citing_clusters_ids_set.update(cg_citing_clusters_ids)
+
+        for cg_citing_cluster_id in cg_citing_clusters_ids_set:
+            candidate_cg_clusters_ids[cg_citing_cluster_id] += 1
+
     print("%d candidate CG clusters" % len(candidate_cg_clusters_ids))
     sorted_candidate_clusters_ids = sorted(candidate_cg_clusters_ids.items(), key=lambda x: x[1], reverse=True)
     for cluster_id, count in sorted_candidate_clusters_ids[:n]:
