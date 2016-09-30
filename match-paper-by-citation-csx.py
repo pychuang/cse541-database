@@ -32,12 +32,12 @@ def match(wos_paperid, n):
 
     candidate_csx_papers_ids = collections.defaultdict(int)
     for wos_citation in wos_citations:
-        print("\tWOS citation: %s" % wos_citation)
+        #print("\tWOS citation: %s" % wos_citation)
         csx_papers_ids = csx.CsxPaper.find_papers_ids_with_citations_matched_by_title(csx_cursor, wos_citation.title)
         if not csx_papers_ids:
             continue
 
-        print("\t%d candidate CSX papers" % len(csx_papers_ids))
+        #print("\t%d candidate CSX papers" % len(csx_papers_ids))
         for csx_paper_id in csx_papers_ids:
             candidate_csx_papers_ids[csx_paper_id] += 1
     print("%d candidate CSX papers" % len(candidate_csx_papers_ids))

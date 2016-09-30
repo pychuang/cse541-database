@@ -33,14 +33,14 @@ def match(wos_paperid, n):
 
     candidate_cg_clusters_ids = collections.defaultdict(int)
     for wos_citation in wos_citations:
-        print("\tWOS citation: %s" % wos_citation)
+        #print("\tWOS citation: %s" % wos_citation)
         cg_citations = csx.CgCluster.find_clusters_by_title(solr_url, wos_citation.title)
         if not cg_citations:
             continue
 
-        print("\tCG: %d citations" % len(cg_citations))
+        #print("\tCG: %d citations" % len(cg_citations))
         for cg_citation in cg_citations:
-            print("\tCG: %s" % cg_citation)
+            #print("\tCG: %s" % cg_citation)
             cg_citing_clusters_ids = cg_citation.find_citing_clusters_ids(cg_cursor)
             for cg_citing_cluster_id in cg_citing_clusters_ids:
                 candidate_cg_clusters_ids[cg_citing_cluster_id] += 1
