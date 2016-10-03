@@ -12,7 +12,7 @@ import dataclean.citeseerx as csx
 
 
 wos_cursor = None
-csx_cursor = None
+cg_cursor = None
 solr_url = None
 
 
@@ -29,15 +29,15 @@ def match(wos_paperid, n):
     wos_paper = wos.WosPaper.get_paper_by_id(wos_cursor, wos_paperid)
     print("WOS: %s" % wos_paper)
 
-    csx_clusters = csx.CsxCluster.find_clusters_by_title(solr_url, wos_paper.title)
-    print("CSX: %d clusters" % len(csx_clusters))
-    for csx_cluster in csx_clusters:
-        print("\tCSX: %s" % csx_cluster)
+    cg_clusters = csx.CgCluster.find_clusters_by_title(solr_url, wos_paper.title)
+    print("CSX: %d clusters" % len(cg_clusters))
+    for cg_cluster in cg_clusters:
+        print("\tCSX: %s" % cg_cluster)
 
 
 def main(args, config):
     global wos_cursor
-    global csx_cursor
+    global cg_cursor
     global solr_url
 
     solr_url = config.get('solr', 'url')
@@ -49,22 +49,22 @@ def main(args, config):
 
     try:
         wosdb = None
-        csxdb = None
+        cgdb = None
         wosdb = connect_db(config, 'wos')
-        csxdb = connect_db(config, 'citegraph')
+        cgdb = connect_db(config, 'citegraph')
         wos_cursor = wosdb.cursor()
-        csx_cursor = csxdb.cursor()
+        cg_cursor = cgdb.cursor()
 
         csvreader = csv.reader(inf)
         for row in csvreader:
             print()
             wos_paperid = row[0]
-            csx_clusterid = match(wos_paperid, int(args.n))
+            cg_clusterid = match(wos_paperid, int(args.n))
     finally:
         if wosdb:
             wosdb.close()
-        if csxdb:
-            csxdb.close()
+        if cgdb:
+            cgdb.close()
 
 
 if __name__ == '__main__':
