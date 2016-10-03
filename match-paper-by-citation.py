@@ -49,8 +49,10 @@ def match(wos_paperid, n):
             candidate_cg_clusters_ids[cg_citing_cluster_id] += 1
 
     print("%d candidate CG clusters" % len(candidate_cg_clusters_ids))
+    nth_count = sorted(set(candidate_cg_clusters_ids.values()), reverse=True)[:n][-1]
+    candidate_cg_clusters_ids = {cluster_id: count for cluster_id, count in candidate_cg_clusters_ids.items() if count >= nth_count}
     sorted_candidate_clusters_ids = sorted(candidate_cg_clusters_ids.items(), key=lambda x: x[1], reverse=True)
-    for cluster_id, count in sorted_candidate_clusters_ids[:n]:
+    for cluster_id, count in sorted_candidate_clusters_ids:
         cluster = csx.CgCluster.get_cluster_by_id(cg_cursor, cluster_id)
         print("%s : count=%d" % (cluster, count))
 
@@ -93,7 +95,7 @@ if __name__ == '__main__':
 
     parser = argparse.ArgumentParser(description='Match papers of Web of Science and clusters of citegraph of CiteSeerX.')
     parser.add_argument('-i', '--infile', help='Input CSV file of paper IDs of Web of Science')
-    parser.add_argument('-n', default=3, help='Max number of results')
+    parser.add_argument('-n', default=3, help='Top n results')
 
     args = parser.parse_args()
     main(args, config)
