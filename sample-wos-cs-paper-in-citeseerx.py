@@ -2,6 +2,7 @@
 
 import argparse
 import ConfigParser
+import csv
 import MySQLdb
 import pickle
 import random
@@ -149,15 +150,20 @@ def sampling(paperids, nsamples):
 
 
 def main(args, config):
-    print "loading %s ..." % args.input
-    with open(args.input, 'rb') as f:
-        cs_papers = pickle.load(f)
+    print "loading %s ..." % args.infile
+
+    paperids = []
+    with open(args.infile) as f:
+        csvreader = csv.reader(f)
+        for row in csvreader:
+            wos_paperid = row[0]
+            paperids.append(wos_paperid)
 
     nsamples = int(args.nsamples)
     runs = int(args.runs)
     ratio = 0
     for i in xrange(runs):
-        ratio += sampling(cs_papers, nsamples)
+        ratio += sampling(paperids, nsamples)
     ratio /= runs
     print "in average, %f of sampled WoS papers match titles of clusters in citegraph database in CiteSeerX" % ratio
 
@@ -166,7 +172,7 @@ if __name__ == '__main__':
     config.read('config.ini')
 
     parser = argparse.ArgumentParser(description='Calculate the percentage of CS papers in Web of Science being in CiteSeerX.')
-    parser.add_argument('-i', '--input', required=True, help='input pickle file of CS papers')
+    parser.add_argument('-i', '--infile', required=True, help='input CSV file of CS papers')
     parser.add_argument('-n', '--nsamples', default=1000, help='number of samples')
     parser.add_argument('-r', '--runs', default=1, help='number of sampling iterations')
 
