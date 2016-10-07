@@ -24,6 +24,12 @@ $ ./sample-wos-cs-paper-citation-in-citeseerx.py -i wos-cs-papers.csv -r 30
 $ ./get-wos-cs-papers-citations.py -o wos-cs-papers-citations.csv
 ```
 
+## Check empty fields in citations of CS papers in WoS
+
+```sh
+$ ./check-wos-citations-csv.py -i wos-cs-papers-citations.csv
+```
+
 ## Match WoS and CiteSeerX papers directly
 
 ```sh
