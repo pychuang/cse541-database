@@ -69,21 +69,13 @@ def match_title_in_citegraph(cursor, title):
 
 
 def get_ratios_of_matches_in_citegraph(papers):
-    print "check whether papers match in citegraph"
-    num_matched_clusters = 0
+    print "check whether citations of papers match in citegraph"
     num_citations = 0
     num_matched_citations = 0
     try:
         db = connect_db(config, 'citegraph')
         cursor = db.cursor()
         for paperid, title, citations in papers:
-            #print "TITLE: %s\t%s" % (title, citations)
-            csx_clusterid, csx_title = match_title_in_citegraph(cursor, title)
-            if csx_clusterid is None:
-                continue
-            num_matched_clusters += 1
-            #print "CSX CLUSTER %d\tTITLE: %s" % (csx_clusterid, csx_title)
-
             if not citations:
                 continue
 
@@ -97,15 +89,12 @@ def get_ratios_of_matches_in_citegraph(papers):
         if db:
             db.close()
 
-    ratio = float(num_matched_clusters) / len(papers)
-    print "%d out of %d sampled WoS papers match titles of clusters in citegraph database in CiteSeerX (%f)" % (num_matched_clusters, len(papers), ratio)
-
     matched_citations_ratio = 0
     if num_citations:
         matched_citations_ratio = float(num_matched_citations) / num_citations
         print "In those WoS papers, the number of all citations is %d. %d of them are matched in CiteSeerX (%f)" % (num_citations, num_matched_citations, matched_citations_ratio)
 
-    return ratio, matched_citations_ratio
+    return matched_citations_ratio
 
 
 def sampling(paperids, nsamples):
@@ -127,16 +116,12 @@ def main(args, config):
 
     nsamples = int(args.nsamples)
     runs = int(args.runs)
-    avg_ratio = 0
     avg_matched_citations_ratio = 0
     for i in xrange(runs):
-        ratio, matched_citations_ratio = sampling(paperids, nsamples)
-        avg_ratio += ratio
+        matched_citations_ratio = sampling(paperids, nsamples)
         avg_matched_citations_ratio += matched_citations_ratio
 
-    avg_ratio /= runs
     avg_matched_citations_ratio /= runs
-    print "In average, %f of sampled WoS papers match titles of clusters in citegraph database in CiteSeerX" % avg_ratio
     print "In average, %f of citations of sampled WoS papers match titles of clusters in citegraph database in CiteSeerX" % avg_matched_citations_ratio
 
 if __name__ == '__main__':
