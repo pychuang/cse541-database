@@ -42,6 +42,8 @@ def match(wos_paperid, n):
             candidate_csx_papers_ids[csx_paper_id] += 1
 
     print("%d candidate CSX papers" % len(candidate_csx_papers_ids))
+    if not candidate_csx_papers_ids:
+        return
     nth_count = sorted(set(candidate_csx_papers_ids.values()), reverse=True)[:n][-1]
     candidate_csx_papers_ids = {paper_id: count for paper_id, count in candidate_csx_papers_ids.items() if count >= nth_count}
     sorted_candidate_csx_papers_ids = sorted(candidate_csx_papers_ids.items(), key=lambda x: x[1], reverse=True)
