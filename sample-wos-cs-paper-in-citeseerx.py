@@ -4,6 +4,7 @@ import argparse
 import ConfigParser
 import csv
 import MySQLdb
+import os
 import pickle
 import random
 import sys
@@ -69,6 +70,16 @@ def match_title_in_citegraph(cursor, title):
         return result
 
 
+def get_paper_dois_in_citegraph(cursor, clusterid):
+    cursor.execute("""
+        SELECT id
+        FROM papers
+        WHERE cluster= %s;""", (clusterid,))
+
+    result = cursor.fetchall()
+    return [d[0] for d in result]
+
+
 def get_citations_in_citegraph(cursor, clusterid):
     cursor.execute("""
         SELECT clusters.id, clusters.ctitle
@@ -89,7 +100,7 @@ def match_titles(titles1, titles2):
     return [t for t in titles1 if normalize_title(t) in normalized_titles2]
 
 
-def get_ratios_of_matches_in_citegraph(papers):
+def get_ratios_of_matches_in_citegraph(csvwriter, papers):
     print "check whether papers match in citegraph"
     num_matched_clusters = 0
     matched_citations_ratios = []
@@ -98,6 +109,13 @@ def get_ratios_of_matches_in_citegraph(papers):
         db = connect_db(config, 'citegraph')
         cursor = db.cursor()
         for paperid, title, citations in papers:
+            csvwriter.writerow(['WoS uid', paperid])
+            csvwriter.writerow(['Title', title])
+            csvwriter.writerow(["%d Citations" % len(citations)])
+            for citation in citations:
+                csvwriter.writerow([citation])
+            csvwriter.writerow([])
+
             #print "TITLE: %s\t%s" % (title, citations)
             csx_clusterid, csx_title = match_title_in_citegraph(cursor, title)
             if csx_clusterid is None:
@@ -105,29 +123,45 @@ def get_ratios_of_matches_in_citegraph(papers):
             num_matched_clusters += 1
             #print "CSX CLUSTER %d\tTITLE: %s" % (csx_clusterid, csx_title)
 
+            dois = get_paper_dois_in_citegraph(cursor, csx_clusterid)
+            csvwriter.writerow(['Cluster ID', csx_clusterid])
+            csvwriter.writerow(['DOI'] + dois)
+            csvwriter.writerow(['Title', csx_title])
+
             if not citations:
+                csvwriter.writerow([])
                 continue
             csx_citations = get_citations_in_citegraph(cursor, csx_clusterid)
             if not csx_citations:
+                csvwriter.writerow([])
                 continue
+
+            csvwriter.writerow(["%d Citations" % len(csx_citations)])
+            for citation in csx_citations:
+                csvwriter.writerow(citation)
+
             print '---'
-            print 'WoS uids', paperid
+            print 'WoS uid', paperid
             print 'TITLE:', title
             print 'CITATIONS:', citations
             print
             print 'CSX cluster', csx_clusterid
+            print 'DOIs:', dois
             print 'TITLE:', csx_title
             print 'CITATIONS:', csx_citations
             csx_titles_of_citations = [title for clusterid, title in csx_citations]
             matched_citations = match_titles(csx_titles_of_citations, citations)
 
             matched_citations_ratio = float(len(matched_citations)) / len(citations)
+            csvwriter.writerow(['matched_citations_ratio', matched_citations_ratio])
             print 'matched_citations_ratio', matched_citations_ratio
             matched_citations_ratios.append(matched_citations_ratio)
 
             matched_citations_jaccard = float(len(matched_citations)) / (len(citations) + len(csx_citations) - len(matched_citations))
+            csvwriter.writerow(['matched_citations_jaccard', matched_citations_jaccard])
             print 'matched_citations_jaccard', matched_citations_jaccard
             matched_citations_jaccards.append(matched_citations_jaccard)
+            csvwriter.writerow([])
     finally:
         if db:
             db.close()
@@ -144,11 +178,11 @@ def get_ratios_of_matches_in_citegraph(papers):
     return ratio
 
 
-def sampling(paperids, nsamples):
+def sampling(csvwriter, paperids, nsamples):
     print "randomly select %d from %d papers" % (nsamples, len(paperids))
     paperids_sample = random.sample(paperids, nsamples)
     papers = get_wos_papers(paperids_sample)
-    return get_ratios_of_matches_in_citegraph(papers)
+    return get_ratios_of_matches_in_citegraph(csvwriter, papers)
 
 
 def main(args, config):
@@ -164,11 +198,17 @@ def main(args, config):
         wos_paperid = row[0]
         paperids.append(wos_paperid)
 
+    if args.outfile:
+        outf = open(args.outfile, 'wb')
+    else:
+        outf = open(os.devnull, 'wb')
+    csvwriter = csv.writer(outf)
+
     nsamples = int(args.nsamples)
     runs = int(args.runs)
     ratio = 0
     for i in xrange(runs):
-        ratio += sampling(paperids, nsamples)
+        ratio += sampling(csvwriter, paperids, nsamples)
     ratio /= runs
     print "in average, %f of sampled WoS papers match titles of clusters in citegraph database in CiteSeerX" % ratio
 
@@ -179,6 +219,7 @@ if __name__ == '__main__':
 
     parser = argparse.ArgumentParser(description='Calculate the percentage of CS papers in Web of Science being in CiteSeerX.')
     parser.add_argument('-i', '--infile', help='input CSV file of CS papers')
+    parser.add_argument('-o', '--outfile', help='output CSV file of sample results')
     parser.add_argument('-n', '--nsamples', default=1000, help='number of samples')
     parser.add_argument('-r', '--runs', default=1, help='number of sampling iterations')
 
