@@ -34,7 +34,7 @@ def match(wos_paperid, n, threshold):
     candidate_cg_clusters_ids = collections.defaultdict(int)
     for wos_citation in wos_citations:
         #print("\tWOS citation: %s" % wos_citation)
-        cg_citations = csx.CgCluster.find_clusters_by_title(solr_url, wos_citation.title)
+        cg_citations = csx.CgCluster.find_clusters_by_title_on_solr(solr_url, wos_citation.title)
         if not cg_citations:
             continue
 

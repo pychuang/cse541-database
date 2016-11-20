@@ -42,7 +42,7 @@ class CgCluster(paper_base.PaperBase):
 
 
     @classmethod
-    def find_clusters_by_title(cls, solr_url, title):
+    def find_clusters_by_title_on_solr(cls, solr_url, title):
         if not title:
             return None
 

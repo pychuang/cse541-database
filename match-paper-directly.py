@@ -29,7 +29,7 @@ def match(wos_paperid, n):
     wos_paper = wos.WosPaper.get_paper_by_id(wos_cursor, wos_paperid)
     print("WOS: %s" % wos_paper)
 
-    cg_clusters = csx.CgCluster.find_clusters_by_title(solr_url, wos_paper.title)
+    cg_clusters = csx.CgCluster.find_clusters_by_title_on_solr(solr_url, wos_paper.title)
     print("CSX: %d clusters" % len(cg_clusters))
     for cg_cluster in cg_clusters:
         print("\tCSX: %s" % cg_cluster)
