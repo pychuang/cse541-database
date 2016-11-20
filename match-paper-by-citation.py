@@ -25,7 +25,7 @@ def connect_db(config, target):
     return MySQLdb.connect(host=host, user=username, passwd=password, db=database)
 
 
-def match(wos_paperid, n):
+def match(wos_paperid, n, threshold):
     wos_paper = wos.WosPaper.get_paper_by_id(wos_cursor, wos_paperid)
     wos_citations = wos.WosPaper.get_citations(wos_cursor, wos_paper)
     print("WOS: %s" % wos_paper)
@@ -52,6 +52,8 @@ def match(wos_paperid, n):
     if not candidate_cg_clusters_ids:
         return
     nth_count = sorted(set(candidate_cg_clusters_ids.values()), reverse=True)[:n][-1]
+    print('nth_count', nth_count, 'threshold', threshold)
+    nth_count = max(threshold, nth_count)
     candidate_cg_clusters_ids = {cluster_id: count for cluster_id, count in candidate_cg_clusters_ids.items() if count >= nth_count}
     sorted_candidate_clusters_ids = sorted(candidate_cg_clusters_ids.items(), key=lambda x: x[1], reverse=True)
     for cluster_id, count in sorted_candidate_clusters_ids:
@@ -83,7 +85,7 @@ def main(args, config):
         for row in csvreader:
             print()
             wos_paperid = row[0]
-            cg_clusterid = match(wos_paperid, int(args.n))
+            cg_clusterid = match(wos_paperid, int(args.n), int(args.threshold))
     finally:
         if wosdb:
             wosdb.close()
@@ -98,6 +100,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Match papers of Web of Science and clusters of citegraph of CiteSeerX.')
     parser.add_argument('-i', '--infile', help='Input CSV file of paper IDs of Web of Science')
     parser.add_argument('-n', default=3, help='Top n results')
+    parser.add_argument('-t', '--threshold', default=3, help='threshold for number of citing')
 
     args = parser.parse_args()
     main(args, config)
