@@ -7,6 +7,9 @@ class CgCluster(paper_base.PaperBase):
     def __init__(self, *args, **kwargs):
         super(CgCluster, self).__init__(*args, **kwargs)
         self.citedby = None
+        self.cites = None
+        self.citations = []
+        self.dois = None
 
 
     def find_citing_clusters_ids(self, cursor):
@@ -20,6 +23,32 @@ class CgCluster(paper_base.PaperBase):
         result = cursor.fetchall()
         self.citedby = [d[0] for d in result]
         return self.citedby
+
+
+    def find_cited_clusters_ids(self, cursor):
+        if self.cites is not None:
+            return self.cites
+
+        cursor.execute("""
+            SELECT cited
+            FROM citegraph
+            WHERE citing = %s;""", (self.paper_id, ))
+        result = cursor.fetchall()
+        self.cites = [d[0] for d in result]
+        return self.cites
+
+
+    def get_dois(self, cursor):
+        if self.dois is not None:
+            return self.dois
+
+        cursor.execute("""
+            SELECT id
+            FROM papers
+            WHERE cluster = %s;""", (self.paper_id, ))
+        result = cursor.fetchall()
+        self.dois = [d[0] for d in result]
+        return self.dois
 
 
     @classmethod
@@ -39,6 +68,19 @@ class CgCluster(paper_base.PaperBase):
         ctitle, cvenue, cyear = result
         cluster = cls(cluster_id, title=ctitle, venue=cvenue, year=cyear)
         return cluster
+
+
+    @classmethod
+    def get_citations(cls, cursor, cluster):
+        if cluster.citations:
+            return cluster.citations
+
+        cites = cluster.find_cited_clusters_ids(cursor)
+        for cite in cites:
+            cluster = cls.get_cluster_by_id(cursor, cite)
+            cluster.citations.append(cluster)
+
+        return cluster.citations
 
 
     @classmethod

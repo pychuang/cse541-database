@@ -53,3 +53,9 @@ Randomly choose 1000 lines of the CSV file as input
 ```sh
 $ shuf -n 1000 wos-cs-papers.csv | ./match-paper-by-citation.py
 ```
+
+## Sample papers which are in both WoS and CiteSeerX and which titles matched
+
+```sh
+$ ./sample-matched-cs-paper-for-manual-check.py -i wos-cs-papers.csv -o result.csv
+```
