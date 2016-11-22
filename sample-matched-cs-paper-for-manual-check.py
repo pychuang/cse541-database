@@ -29,7 +29,7 @@ def match(wos_paperid):
         return None
 
     # match title
-    cg_clusters = csx.CgCluster.find_clusters_by_title_on_solr(solr_url, wos_paper.title)
+    cg_clusters = csx.CgCluster.find_clusters_by_title(cg_cursor, wos_paper.title)
     if not cg_clusters:
         return None
 
@@ -43,6 +43,7 @@ def match(wos_paperid):
     if not cg_clusters_with_dois:
         return None
 
+    print(wos_paper.paper_id)
     return (wos_paper, cg_clusters_with_dois)
 
 
@@ -61,6 +62,7 @@ def sampling(wos_paperids, nsamples):
 
 def output(csvwriter, wos_paper, cg_clusters):
     # WoS papers
+    print(wos_paper.paper_id)
     csvwriter.writerow(['WoS uid', wos_paper.paper_id])
     csvwriter.writerow(['Title', wos_paper.title])
 

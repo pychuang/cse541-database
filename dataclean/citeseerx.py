@@ -77,10 +77,32 @@ class CgCluster(paper_base.PaperBase):
 
         cites = cluster.find_cited_clusters_ids(cursor)
         for cite in cites:
-            cluster = cls.get_cluster_by_id(cursor, cite)
-            cluster.citations.append(cluster)
+            cited_cluster = cls.get_cluster_by_id(cursor, cite)
+            cluster.citations.append(cited_cluster)
 
         return cluster.citations
+
+
+    @classmethod
+    def find_clusters_by_title(cls, cursor, title):
+        if not title:
+            return None
+
+        cursor.execute("""
+            SELECT id, ctitle, cvenue, cyear
+            FROM clusters
+            WHERE ctitle = %s;""", (title, ))
+        results = cursor.fetchall()
+
+        clusters = []
+        for result in results:
+            cluster_id, ctitle, cvenue, cyear = result
+            if cluster_id in cls.papers:
+                cluster= cls.papers[cluster_id]
+            else:
+                cluster = cls(cluster_id, title=ctitle, venue=cvenue, year=cyear)
+            clusters.append(cluster)
+        return clusters
 
 
     @classmethod
