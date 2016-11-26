@@ -11,6 +11,8 @@ import sys
 import dataclean.wos as wos
 import dataclean.citeseerx as csx
 
+from dataclean import utils
+
 
 def connect_db(config, target):
     host = config.get(target, 'host')
@@ -21,6 +23,14 @@ def connect_db(config, target):
     return MySQLdb.connect(host=host, user=username, passwd=password, db=database)
 
 
+def likely_same_paper(wos_paper, cg_cluster):
+    if utils.normalize_query_string(wos_paper.title) == utils.normalize_query_string(cg_cluster.title):
+        return True
+    if wos_paper.year and cg_cluster.year and wos_paper.year != cg_cluster.year:
+        return False
+    return True
+
+
 def match(wos_paperid, threshold):
     wos_paper = wos.WosPaper.get_paper_by_id(wos_cursor, wos_paperid)
     wos_citations = wos.WosPaper.get_citations(wos_cursor, wos_paper)
@@ -29,17 +39,22 @@ def match(wos_paperid, threshold):
 
     candidate_cg_cluster_id_counter = collections.defaultdict(int)
     for wos_citation in wos_citations:
-        #print("\tWOS citation: %s" % wos_citation)
+        print("\tWOS citation: %s" % wos_citation)
         cg_citations = csx.CgCluster.find_clusters_by_title_on_solr_imprecise(solr_url, wos_citation.title)
         if not cg_citations:
             continue
 
-        #print("\tCG: %d citations" % len(cg_citations))
+        count = 0
+        print("\tCG: %d citations" % len(cg_citations))
         cg_citing_clusters_ids_set = set()
         for cg_citation in cg_citations:
-            #print("\tCG: %s" % cg_citation)
+            if not likely_same_paper(wos_citation, cg_citation):
+                continue
+            count+=1
+            #print("\t\tCG: %s" % cg_citation)
             cg_citing_clusters_ids = cg_citation.find_citing_clusters_ids(cg_cursor)
             cg_citing_clusters_ids_set.update(cg_citing_clusters_ids)
+        print("\tCG: %d citations being considered" % count)
 
         for cg_citing_cluster_id in cg_citing_clusters_ids_set:
             candidate_cg_cluster_id_counter[cg_citing_cluster_id] += 1
@@ -56,7 +71,6 @@ def match(wos_paperid, threshold):
     cg_cluster = csx.CgCluster.get_cluster_by_id(cg_cursor, cg_cluster_id)
     dois = cg_cluster.get_dois(cg_cursor)
     cg_citations = csx.CgCluster.get_citations(cg_cursor, cg_cluster)
-    (["%d citations" % len(cg_citations)])
     print("%s : #citations=%d, count=%d, DOIs: %s" % (cg_cluster, len(cg_citations), count, ', '.join(dois)))
 
 
