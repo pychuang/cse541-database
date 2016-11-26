@@ -49,6 +49,7 @@ def query_solr_iter(solr_url, q, mm=None, limit=0):
 
 
 def normalize_query_string(s):
+    s = s.lower()
     # remove all punctuations and digits
-    s  = re.sub(r"\d\s\p", r' ', s)
+    s  = re.sub(r"[\W\s]", ' ', s)
     return ' '.join(s.split())
