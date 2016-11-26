@@ -135,6 +135,45 @@ class CgCluster(paper_base.PaperBase):
         return clusters
 
 
+    @classmethod
+    def find_clusters_by_title_on_solr_imprecise(cls, solr_url, title):
+        if not title:
+            return None
+
+        s = utils.normalize_query_string(title)
+        words = s.split()
+        if len(words) < 2:
+            return None
+
+        clusters = []
+        q = ' '.join(["title:%s" % w for w in words])
+        if len(words) < 5:
+            mm = None
+        else:
+            mm = "80%"
+        for doc in utils.query_solr_iter(solr_url, q, mm=mm, limit=100):
+            cluster_id = doc['id']
+            cluster = cls.find_cached_paper(cluster_id)
+            if not cluster:
+                if 'title' not in doc:
+                    continue
+
+                title = doc['title']
+                if 'venue' in doc:
+                    venue = doc['venue']
+                else:
+                    venue = None
+                if 'year' in doc:
+                    year = doc['year']
+                else:
+                    year = None
+
+                cluster = cls(cluster_id, title=title, venue=venue, year=year)
+            clusters.append(cluster)
+
+        return clusters
+
+
 class CsxPaper(paper_base.PaperBase):
 
     def __init__(self, *args, **kwargs):
