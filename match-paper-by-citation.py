@@ -11,11 +11,6 @@ import dataclean.wos as wos
 import dataclean.citeseerx as csx
 
 
-wos_cursor = None
-cg_cursor = None
-solr_url = None
-
-
 def connect_db(config, target):
     host = config.get(target, 'host')
     username = config.get(target, 'username')
@@ -69,7 +64,7 @@ def main(args, config):
     solr_url = config.get('solr', 'url')
 
     if args.infile:
-        inf = open(args.infile, 'rb')
+        inf = open(args.infile)
     else:
         inf = sys.stdin
 
@@ -94,6 +89,10 @@ def main(args, config):
 
 
 if __name__ == '__main__':
+    wos_cursor = None
+    cg_cursor = None
+    solr_url = None
+
     config = configparser.ConfigParser()
     config.read('config.ini')
 
