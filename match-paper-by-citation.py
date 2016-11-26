@@ -5,6 +5,7 @@ import collections
 import configparser
 import csv
 import MySQLdb
+import operator
 import sys
 
 import dataclean.wos as wos
@@ -20,13 +21,13 @@ def connect_db(config, target):
     return MySQLdb.connect(host=host, user=username, passwd=password, db=database)
 
 
-def match(wos_paperid, n, threshold):
+def match(wos_paperid, threshold):
     wos_paper = wos.WosPaper.get_paper_by_id(wos_cursor, wos_paperid)
     wos_citations = wos.WosPaper.get_citations(wos_cursor, wos_paper)
     print("WOS: %s" % wos_paper)
     print("WOS: %d citations" % len(wos_citations))
 
-    candidate_cg_clusters_ids = collections.defaultdict(int)
+    candidate_cg_cluster_id_counter = collections.defaultdict(int)
     for wos_citation in wos_citations:
         #print("\tWOS citation: %s" % wos_citation)
         cg_citations = csx.CgCluster.find_clusters_by_title_on_solr(solr_url, wos_citation.title)
@@ -41,19 +42,22 @@ def match(wos_paperid, n, threshold):
             cg_citing_clusters_ids_set.update(cg_citing_clusters_ids)
 
         for cg_citing_cluster_id in cg_citing_clusters_ids_set:
-            candidate_cg_clusters_ids[cg_citing_cluster_id] += 1
+            candidate_cg_cluster_id_counter[cg_citing_cluster_id] += 1
 
-    print("%d candidate CG clusters" % len(candidate_cg_clusters_ids))
-    if not candidate_cg_clusters_ids:
+    print("%d candidate CG clusters" % len(candidate_cg_cluster_id_counter))
+    if not candidate_cg_cluster_id_counter:
         return
-    nth_count = sorted(set(candidate_cg_clusters_ids.values()), reverse=True)[:n][-1]
-    print('nth_count', nth_count, 'threshold', threshold)
-    nth_count = max(threshold, nth_count)
-    candidate_cg_clusters_ids = {cluster_id: count for cluster_id, count in candidate_cg_clusters_ids.items() if count >= nth_count}
-    sorted_candidate_clusters_ids = sorted(candidate_cg_clusters_ids.items(), key=lambda x: x[1], reverse=True)
-    for cluster_id, count in sorted_candidate_clusters_ids:
-        cluster = csx.CgCluster.get_cluster_by_id(cg_cursor, cluster_id)
-        print("%s : count=%d" % (cluster, count))
+    # get the item with max value
+    cg_cluster_id, count = max(candidate_cg_cluster_id_counter.items(), key=operator.itemgetter(1))
+
+    if count < len(wos_citations) * threshold:
+        return
+
+    cg_cluster = csx.CgCluster.get_cluster_by_id(cg_cursor, cg_cluster_id)
+    dois = cg_cluster.get_dois(cg_cursor)
+    cg_citations = csx.CgCluster.get_citations(cg_cursor, cg_cluster)
+    (["%d citations" % len(cg_citations)])
+    print("%s : #citations=%d, count=%d, DOIs: %s" % (cg_cluster, len(cg_citations), count, ', '.join(dois)))
 
 
 def main(args, config):
@@ -80,7 +84,7 @@ def main(args, config):
         for row in csvreader:
             print()
             wos_paperid = row[0]
-            cg_clusterid = match(wos_paperid, int(args.n), int(args.threshold))
+            cg_clusterid = match(wos_paperid, args.threshold)
     finally:
         if wosdb:
             wosdb.close()
@@ -98,8 +102,7 @@ if __name__ == '__main__':
 
     parser = argparse.ArgumentParser(description='Match papers of Web of Science and clusters of citegraph of CiteSeerX.')
     parser.add_argument('-i', '--infile', help='Input CSV file of paper IDs of Web of Science')
-    parser.add_argument('-n', default=3, help='Top n results')
-    parser.add_argument('-t', '--threshold', default=3, help='threshold for number of citing')
+    parser.add_argument('-t', '--threshold', type=float, default=0.8, help='threshold for percentage of matched/WoS')
 
     args = parser.parse_args()
     main(args, config)
