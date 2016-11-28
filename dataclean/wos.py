@@ -54,3 +54,20 @@ class WosPaper(paper_base.PaperBase):
                 cp = cls(uid, title=citedTitle, venue=citedWork, year=year)
             paper.citations.append(cp)
         return paper.citations
+
+
+    @classmethod
+    def get_authors(cls, cursor, paper):
+        if paper.authors:
+            return paper.authors
+
+        cursor.execute("""
+            SELECT wos_standard_name
+            FROM names
+            WHERE paperid = %s;""", (paper.paper_id, ))
+
+        paper.authors = []
+        for result in utils.result_iter(cursor):
+            author, = result
+            paper.authors.append(author)
+        return paper.authors

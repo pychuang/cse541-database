@@ -34,6 +34,7 @@ def likely_same_paper(wos_paper, cg_cluster):
 def match(wos_paperid, threshold):
     wos_paper = wos.WosPaper.get_paper_by_id(wos_cursor, wos_paperid)
     wos_citations = wos.WosPaper.get_citations(wos_cursor, wos_paper)
+    wos.WosPaper.get_authors(wos_cursor, wos_paper)
     print("WOS: %s" % wos_paper)
     print("WOS: %d citations" % len(wos_citations))
 
