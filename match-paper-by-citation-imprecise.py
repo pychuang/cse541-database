@@ -63,16 +63,14 @@ def match(wos_paperid, threshold):
     print("%d candidate CG clusters" % len(candidate_cg_cluster_id_counter))
     if not candidate_cg_cluster_id_counter:
         return
-    # get the item with max value
-    cg_cluster_id, count = max(candidate_cg_cluster_id_counter.items(), key=operator.itemgetter(1))
 
-    if count < len(wos_citations) * threshold:
-        return
+    candidate_cg_cluster_id_counter = {cid: count for cid, count in candidate_cg_cluster_id_counter.items() if count >= len(wos_citations) * threshold}
 
-    cg_cluster = csx.CgCluster.get_cluster_by_id(cg_cursor, cg_cluster_id)
-    dois = cg_cluster.get_dois(cg_cursor)
-    cg_citations = csx.CgCluster.get_citations(cg_cursor, cg_cluster)
-    print("%s : #citations=%d, count=%d, DOIs: %s" % (cg_cluster, len(cg_citations), count, ', '.join(dois)))
+    for cg_cluster_id, count in candidate_cg_cluster_id_counter.items():
+        cg_cluster = csx.CgCluster.get_cluster_by_id(cg_cursor, cg_cluster_id)
+        dois = cg_cluster.get_dois(cg_cursor)
+        cg_citations = csx.CgCluster.get_citations(cg_cursor, cg_cluster)
+        print("%s : #citations=%d, count=%d, DOIs: %s" % (cg_cluster, len(cg_citations), count, ', '.join(dois)))
 
 
 def main(args, config):
