@@ -59,3 +59,9 @@ $ shuf -n 1000 wos-cs-papers.csv | ./match-paper-by-citation.py
 ```sh
 $ ./sample-matched-cs-paper-for-manual-check.py -i wos-cs-papers.csv -o result.csv
 ```
+
+## Match WoS and CiteSeerX papers using imprecise citations information
+
+```sh
+$ echo WOS:000253032400003 | ./match-paper-by-citation-imprecise.py
+```
