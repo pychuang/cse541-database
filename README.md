@@ -71,3 +71,9 @@ $ echo WOS:000253032400003 | ./match-paper-by-citation-imprecise.py
 ```sh
 $ ./sample-with-cornelia-method.py -i wos-cs-papers.csv -o result.csv
 ```
+
+## Extract WoS uids from result CSV file
+
+```sh
+$ grep WoS result.csv |cut -d , -f 2 > wosids.csv
+```
