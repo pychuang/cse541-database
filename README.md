@@ -65,3 +65,9 @@ $ ./sample-matched-cs-paper-for-manual-check.py -i wos-cs-papers.csv -o result.c
 ```sh
 $ echo WOS:000253032400003 | ./match-paper-by-citation-imprecise.py
 ```
+
+## Sample papers using Cornelia's method
+
+```sh
+$ ./sample-with-cornelia-method.py -i wos-cs-papers.csv -o result.csv
+```
