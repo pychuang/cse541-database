@@ -5,7 +5,7 @@ import collections
 import configparser
 import csv
 import MySQLdb
-import operator
+import os
 import sys
 
 import dataclean.wos as wos
@@ -31,12 +31,15 @@ def likely_same_paper(wos_paper, cg_cluster):
     return True
 
 
-def match(wos_paperid, threshold):
+def match(csvwriter, wos_paperid, threshold):
     wos_paper = wos.WosPaper.get_paper_by_id(wos_cursor, wos_paperid)
     wos_citations = wos.WosPaper.get_citations(wos_cursor, wos_paper)
-    wos.WosPaper.get_authors(wos_cursor, wos_paper)
+    authors = wos_paper.get_authors(wos_cursor)
     print("WOS: %s" % wos_paper)
     print("WOS: %d citations" % len(wos_citations))
+    csvwriter.writerow(['WoS uid', wos_paper.paper_id])
+    csvwriter.writerow(['Title', wos_paper.title])
+    csvwriter.writerow(['Authors'] + authors)
 
     candidate_cg_cluster_id_counter = collections.defaultdict(int)
     for wos_citation in wos_citations:
@@ -69,9 +72,15 @@ def match(wos_paperid, threshold):
     for cg_cluster_id, count in candidate_cg_cluster_id_counter.items():
         cg_cluster = csx.CgCluster.get_cluster_by_id(cg_cursor, cg_cluster_id)
         dois = cg_cluster.get_dois(cg_cursor)
+        authors = cg_cluster.get_authors(cg_cursor)
         cg_citations = csx.CgCluster.get_citations(cg_cursor, cg_cluster)
         print("%s : #citations=%d, count=%d, DOIs: %s" % (cg_cluster, len(cg_citations), count, ', '.join(dois)))
+        csvwriter.writerow(['Cluster ID', cg_cluster.paper_id])
+        csvwriter.writerow(['Title', cg_cluster.title])
+        csvwriter.writerow(['Authors'] + authors)
+        csvwriter.writerow(['DOIs'] + dois)
 
+    csvwriter.writerow(['#####'])
 
 def main(args, config):
     global wos_cursor
@@ -85,6 +94,11 @@ def main(args, config):
     else:
         inf = sys.stdin
 
+    if args.outfile:
+        outf = open(args.outfile, 'w')
+    else:
+        outf = open(os.devnull, 'w')
+
     try:
         wosdb = None
         cgdb = None
@@ -94,10 +108,11 @@ def main(args, config):
         cg_cursor = cgdb.cursor()
 
         csvreader = csv.reader(inf)
+        csvwriter = csv.writer(outf)
         for row in csvreader:
             print()
             wos_paperid = row[0]
-            cg_clusterid = match(wos_paperid, args.threshold)
+            cg_clusterid = match(csvwriter, wos_paperid, args.threshold)
     finally:
         if wosdb:
             wosdb.close()
@@ -115,6 +130,7 @@ if __name__ == '__main__':
 
     parser = argparse.ArgumentParser(description='Match papers of Web of Science and clusters of citegraph of CiteSeerX.')
     parser.add_argument('-i', '--infile', help='Input CSV file of paper IDs of Web of Science')
+    parser.add_argument('-o', '--outfile', help='output CSV file of match results')
     parser.add_argument('-t', '--threshold', type=float, default=0.8, help='threshold for percentage of matched/WoS')
 
     args = parser.parse_args()

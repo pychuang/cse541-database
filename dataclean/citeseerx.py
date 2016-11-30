@@ -51,6 +51,24 @@ class CgCluster(paper_base.PaperBase):
         return self.dois
 
 
+    def get_authors(self, cursor):
+        if self.authors:
+            return self.authors
+
+        cursor.execute("""
+            SELECT cauth
+            FROM clusters
+            WHERE id = %s;""", (self.paper_id, ))
+
+        result = cursor.fetchone()
+        if not result:
+            self.authors = []
+        else:
+            cauth, = result
+            self.authors = cauth.split(',')
+        return self.authors
+
+
     @classmethod
     def get_cluster_by_id(cls, cursor, cluster_id):
         cluster = cls.find_cached_paper(cluster_id)

@@ -9,6 +9,22 @@ class WosPaper(paper_base.PaperBase):
         self.citations = []
 
 
+    def get_authors(self, cursor):
+        if self.authors:
+            return self.authors
+
+        cursor.execute("""
+            SELECT wos_standard_name
+            FROM names
+            WHERE paperid = %s;""", (self.paper_id, ))
+
+        self.authors = []
+        for result in utils.result_iter(cursor):
+            author, = result
+            self.authors.append(author)
+        return self.authors
+
+
     @classmethod
     def get_paper_by_id(cls, cursor, paper_id):
         paper = cls.find_cached_paper(paper_id)
@@ -54,20 +70,3 @@ class WosPaper(paper_base.PaperBase):
                 cp = cls(uid, title=citedTitle, venue=citedWork, year=year)
             paper.citations.append(cp)
         return paper.citations
-
-
-    @classmethod
-    def get_authors(cls, cursor, paper):
-        if paper.authors:
-            return paper.authors
-
-        cursor.execute("""
-            SELECT wos_standard_name
-            FROM names
-            WHERE paperid = %s;""", (paper.paper_id, ))
-
-        paper.authors = []
-        for result in utils.result_iter(cursor):
-            author, = result
-            paper.authors.append(author)
-        return paper.authors
