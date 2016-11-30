@@ -159,17 +159,13 @@ class CgCluster(paper_base.PaperBase):
             return None
 
         s = utils.normalize_query_string(title)
-        words = s.split()
-        if len(words) < 2:
+        title_ngrams = utils.ngrams(s, 3)
+        if not title_ngrams:
             return None
 
         clusters = []
-        q = ' '.join(["title:%s" % w for w in words])
-        if len(words) < 5:
-            mm = None
-        else:
-            mm = "80%"
-        for doc in utils.query_solr_iter(solr_url, q, mm=mm, limit=100):
+        q = ' '.join(["title:\"%s\"" % ng for ng in title_ngrams])
+        for doc in utils.query_solr_iter(solr_url, q, limit=100):
             cluster_id = doc['id']
             cluster = cls.find_cached_paper(cluster_id)
             if not cluster:

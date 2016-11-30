@@ -8,6 +8,8 @@ import os
 import random
 import sys
 
+from dataclean import utils
+
 import dataclean.wos as wos
 import dataclean.citeseerx as csx
 
@@ -28,7 +30,7 @@ def match(csvwriter, wos_paperid):
     if not wos_paper.title:
         return False
 
-    print(wos_paper.paper_id)
+    print("WOS: %s" % wos_paper)
     csvwriter.writerow(['WoS uid', wos_paper.paper_id])
     csvwriter.writerow(['Title', wos_paper.title])
 
@@ -37,12 +39,20 @@ def match(csvwriter, wos_paperid):
     if not cg_clusters:
         return True
 
-    # ignore clusters without corresponding DOIs
+    normalized_wos_title = utils.normalize_query_string(wos_paper.title)
     for cg_cluster in cg_clusters:
+        # ignore clusters without corresponding DOIs
         dois = cg_cluster.get_dois(cg_cursor)
         if not dois:
             continue
+
+        # ignore clusters with low Jaccard
+        normalized_cluster_title = utils.normalize_query_string(cg_cluster.title)
+        if utils.jaccard(normalized_wos_title, normalized_cluster_title) < 0.7:
+            continue
+
         authors = cg_cluster.get_authors(cg_cursor)
+        print("\tCG: %s" % cg_cluster)
         csvwriter.writerow(['Cluster ID', cg_cluster.paper_id])
         csvwriter.writerow(['Title', cg_cluster.title])
         csvwriter.writerow(['Authors'] + authors)

@@ -53,3 +53,15 @@ def normalize_query_string(s):
     # remove all punctuations and digits
     s  = re.sub(r"[\W\s]", ' ', s)
     return ' '.join(s.split())
+
+
+def ngrams(s, n):
+    words = s.split()
+    combinations = zip(*[words[i:] for i in range(n)])
+    return [' '.join(zipped_words) for zipped_words in combinations]
+
+
+def jaccard(s1, s2):
+    set1 = set(s1.split())
+    set2 = set(s2.split())
+    return len(set1 & set2) / len(set1 | set2)
