@@ -30,9 +30,11 @@ def match(csvwriter, wos_paperid):
     if not wos_paper.title:
         return False
 
+    authors = wos_paper.get_authors(wos_cursor)
     print("WOS: %s" % wos_paper)
     csvwriter.writerow(['WoS uid', wos_paper.paper_id])
     csvwriter.writerow(['Title', wos_paper.title])
+    csvwriter.writerow(['Authors'] + authors)
 
     # match title
     cg_clusters = csx.CgCluster.find_clusters_by_title_on_solr_imprecise(solr_url, wos_paper.title)
