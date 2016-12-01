@@ -77,3 +77,9 @@ $ ./sample-with-cornelia-method.py -i wos-cs-papers.csv -o result.csv
 ```sh
 $ grep WoS result.csv |cut -d , -f 2 > wosids.csv
 ```
+
+## Sample papers using both Cornelia's method and our method
+
+```sh
+$ ./sample-and-match.py -i wos-cs-papers.csv -o result.csv
+```
