@@ -56,6 +56,9 @@ def my_match(csvwriter, wos_paper, threshold):
     wos_citations = wos.WosPaper.get_citations(wos_cursor, wos_paper)
     authors = wos_paper.get_authors(wos_cursor)
     print("\tWOS: %d citations" % len(wos_citations))
+    # too few citations to get reasonable results
+    if len(wos_citations) <= 3:
+        return
 
     candidate_cg_cluster_id_counter = collections.defaultdict(int)
     for wos_citation in wos_citations:
