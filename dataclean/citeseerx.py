@@ -131,7 +131,7 @@ class CgCluster(paper_base.PaperBase):
         clusters = []
         q = "title:\"%s\"" % title
         for doc in utils.query_solr_iter(solr_url, q):
-            cluster_id = doc['id']
+            cluster_id = int(doc['id'])
             cluster = cls.find_cached_paper(cluster_id)
             if not cluster:
                 if 'title' not in doc:
@@ -166,7 +166,7 @@ class CgCluster(paper_base.PaperBase):
         clusters = []
         q = ' '.join(["title:\"%s\"" % ng for ng in title_ngrams])
         for doc in utils.query_solr_iter(solr_url, q, limit=1000):
-            cluster_id = doc['id']
+            cluster_id = int(doc['id'])
             cluster = cls.find_cached_paper(cluster_id)
             if not cluster:
                 if 'title' not in doc:
