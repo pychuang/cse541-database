@@ -83,7 +83,7 @@ def my_match(csvwriter, wos_paper, threshold):
 
     print("\t%d candidate CG clusters" % len(candidate_cg_cluster_id_counter))
     if not candidate_cg_cluster_id_counter:
-        return []
+        return set()
 
     candidate_cg_cluster_id_counter = {cid: count for cid, count in candidate_cg_cluster_id_counter.items() if count >= len(wos_citations) * threshold}
 
