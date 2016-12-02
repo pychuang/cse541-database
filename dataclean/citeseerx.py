@@ -104,7 +104,7 @@ class CgCluster(paper_base.PaperBase):
     @classmethod
     def find_clusters_by_title(cls, cursor, title):
         if not title:
-            return None
+            return []
 
         cursor.execute("""
             SELECT id, ctitle, cvenue, cyear
@@ -126,7 +126,7 @@ class CgCluster(paper_base.PaperBase):
     @classmethod
     def find_clusters_by_title_on_solr(cls, solr_url, title):
         if not title:
-            return None
+            return []
 
         clusters = []
         q = "title:\"%s\"" % title
@@ -156,12 +156,12 @@ class CgCluster(paper_base.PaperBase):
     @classmethod
     def find_clusters_by_title_on_solr_imprecise(cls, solr_url, title):
         if not title:
-            return None
+            return []
 
         s = utils.normalize_query_string(title)
         title_ngrams = utils.ngrams(s, 3)
         if not title_ngrams:
-            return None
+            return []
 
         clusters = []
         q = ' '.join(["title:\"%s\"" % ng for ng in title_ngrams])
