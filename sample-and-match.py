@@ -30,13 +30,11 @@ def high_jaccard(wos_paper, cg_cluster):
     return utils.jaccard(normalized_wos_title, normalized_cluster_title) >= 0.7
 
 
-def cornelia_match(csvwriter, wos_paper):
-    # match title
-    cg_clusters = csx.CgCluster.find_clusters_by_title_on_solr_imprecise(solr_url, wos_paper.title)
+def cornelia_match(csvwriter, wos_paper, cg_clusters):
     if not cg_clusters:
-        return
+        return set()
 
-    print("\tCG: %d candidate clusters" % len(cg_clusters))
+    selected_clusters = set()
     normalized_wos_title = utils.normalize_query_string(wos_paper.title)
     for cg_cluster in cg_clusters:
         # ignore clusters without corresponding DOIs
@@ -45,20 +43,22 @@ def cornelia_match(csvwriter, wos_paper):
             continue
 
         # ignore clusters with low Jaccard
-        selected = high_jaccard(wos_paper, cg_cluster)
 
         authors = cg_cluster.get_authors(cg_cursor)
-        print("\t%s CG: %s, DOIs: %s" % ('Cornelia' if selected else '        ', cg_cluster, ', '.join(dois)))
-        csvwriter.writerow(['Cornelia' if selected else '', cg_cluster.paper_id, cg_cluster.title, cg_cluster.year] + authors + dois)
+        if high_jaccard(wos_paper, cg_cluster):
+            print("\t-> CG: %s, DOIs: %s" % (cg_cluster, ', '.join(dois)))
+            selected_clusters.add(cg_cluster)
+        else:
+            print("\t   CG: %s, DOIs: %s" % (cg_cluster, ', '.join(dois)))
+    return selected_clusters
 
 
 def my_match(csvwriter, wos_paper, threshold):
     wos_citations = wos.WosPaper.get_citations(wos_cursor, wos_paper)
-    authors = wos_paper.get_authors(wos_cursor)
     print("\tWOS: %d citations" % len(wos_citations))
     # too few citations to get reasonable results
     if len(wos_citations) <= 3:
-        return
+        return set()
 
     candidate_cg_cluster_id_counter = collections.defaultdict(int)
     for wos_citation in wos_citations:
@@ -83,17 +83,19 @@ def my_match(csvwriter, wos_paper, threshold):
 
     print("\t%d candidate CG clusters" % len(candidate_cg_cluster_id_counter))
     if not candidate_cg_cluster_id_counter:
-        return
+        return []
 
     candidate_cg_cluster_id_counter = {cid: count for cid, count in candidate_cg_cluster_id_counter.items() if count >= len(wos_citations) * threshold}
 
+    selected_clusters = set()
     for cg_cluster_id, count in candidate_cg_cluster_id_counter.items():
         cg_cluster = csx.CgCluster.get_cluster_by_id(cg_cursor, cg_cluster_id)
+        cg_cluster.get_authors(cg_cursor)
         dois = cg_cluster.get_dois(cg_cursor)
-        authors = cg_cluster.get_authors(cg_cursor)
         cg_citations = csx.CgCluster.get_citations(cg_cursor, cg_cluster)
+        selected_clusters.add(cg_cluster)
         print("\t-> CG: %s : #citations=%d, count=%d, DOIs: %s" % (cg_cluster, len(cg_citations), count, ', '.join(dois)))
-        csvwriter.writerow(['Ours', cg_cluster.paper_id, cg_cluster.title, cg_cluster.year] + authors + dois)
+    return selected_clusters
 
 
 def match(csvwriter, wos_paperid, threshold):
@@ -107,10 +109,28 @@ def match(csvwriter, wos_paperid, threshold):
     print("WOS: %s" % wos_paper)
     csvwriter.writerow(['WoS uid', wos_paper.paper_id, wos_paper.title, wos_paper.year] + authors)
 
-    cornelia_match(csvwriter, wos_paper)
+    # match title
+    cg_clusters = csx.CgCluster.find_clusters_by_title_on_solr_imprecise(solr_url, wos_paper.title)
+    print("\tCG: %d candidate clusters" % len(cg_clusters))
+
+    cornelia_selected_clusters = cornelia_match(csvwriter, wos_paper, cg_clusters)
     print('\t-----')
-    csvwriter.writerow(['-----'])
-    my_match(csvwriter, wos_paper, threshold)
+    my_selected_clusters = my_match(csvwriter, wos_paper, threshold)
+
+    all_candidate_clusters = set(cg_clusters) | my_selected_clusters
+    for cg_cluster in all_candidate_clusters:
+        authors = cg_cluster.get_authors(cg_cursor)
+        dois = cg_cluster.get_dois(cg_cursor)
+
+        tags = []
+        if cg_cluster in cornelia_selected_clusters:
+            tags.append('Cornelia')
+        if cg_cluster in my_selected_clusters:
+            tags.append('Ours')
+
+        stags = ' '.join(tags)
+        csvwriter.writerow([stags, cg_cluster.paper_id, cg_cluster.title, cg_cluster.year] + authors + dois)
+
     print('#####')
     csvwriter.writerow(['#####'])
     return True
