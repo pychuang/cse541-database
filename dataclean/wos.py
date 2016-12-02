@@ -32,15 +32,16 @@ class WosPaper(paper_base.PaperBase):
             return paper
 
         cursor.execute("""
-            SELECT title, pubname
+            SELECT title, pubname, date
             FROM papers
             WHERE papers.uid = %s;""", (paper_id, ))
         result = cursor.fetchone()
         if not result:
             return None
 
-        title, pubname = result
-        paper = cls(paper_id, title=title, venue=pubname)
+        title, pubname, date_time = result
+        year = date_time.year
+        paper = cls(paper_id, title=title, venue=pubname, year=year)
         return paper
 
 
