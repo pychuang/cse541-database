@@ -33,6 +33,7 @@ def main(args, config):
     intersect_fp = 0
     intersect_fn = 0
 
+    wos_papers_that_have_true_matches = set()
     wos_papers_that_found_candidates = set()
 
     if args.infile:
@@ -58,6 +59,9 @@ def main(args, config):
         truth = convert(truth)
         cornelia = convert(cornelia)
         ours = convert(ours)
+
+        if truth:
+            wos_papers_that_have_true_matches.add(wos_paper_id)
 
         if cornelia or ours:
             wos_papers_that_found_candidates.add(wos_paper_id)
@@ -94,20 +98,25 @@ def main(args, config):
         elif not intersect and truth:
             intersect_fn += 1
 
+    print("%d WoS papers have true matches" % len(wos_papers_that_have_true_matches))
     print("%d WoS papers have candidate matches" % len(wos_papers_that_found_candidates))
 
     cornelia_precision = cornelia_tp / (cornelia_tp + cornelia_fp)
     cornelia_recall = cornelia_tp / (cornelia_tp + cornelia_fn)
-    print("[Cornelia]\tprecision=%f, recall=%f" % (cornelia_precision, cornelia_recall))
+    cornelia_f1 = 2 * cornelia_precision * cornelia_recall / (cornelia_precision + cornelia_recall)
+    print("[Cornelia]\tprecision= %f, recall= %f, F1= %f" % (cornelia_precision, cornelia_recall, cornelia_f1))
     ours_precision = ours_tp / (ours_tp + ours_fp)
     ours_recall = ours_tp / (ours_tp + ours_fn)
-    print("[Ours]\tprecision=%f, recall=%f" % (ours_precision, ours_recall))
+    ours_f1 = 2 * ours_precision * ours_recall / (ours_precision + ours_recall)
+    print("[Ours]\tprecision= %f, recall= %f, F1= %f" % (ours_precision, ours_recall, ours_f1))
     union_precision = union_tp / (union_tp + union_fp)
     union_recall = union_tp / (union_tp + union_fn)
-    print("[Union]\tprecision=%f, recall=%f" % (union_precision, union_recall))
+    union_f1 = 2 * union_precision * union_recall / (union_precision + union_recall)
+    print("[Union]\tprecision= %f, recall= %f, F1= %f" % (union_precision, union_recall, union_f1))
     intersect_precision = intersect_tp / (intersect_tp + intersect_fp)
     intersect_recall = intersect_tp / (intersect_tp + intersect_fn)
-    print("[Intersect]\tprecision=%f, recall=%f" % (intersect_precision, intersect_recall))
+    intersect_f1 = 2 * intersect_precision * intersect_recall / (intersect_precision + intersect_recall)
+    print("[Intersect]\tprecision= %f, recall= %f, F1= %f" % (intersect_precision, intersect_recall, intersect_f1))
 
 
 if __name__ == '__main__':
