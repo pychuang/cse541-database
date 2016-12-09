@@ -57,11 +57,12 @@ def get_wos_papers(paperids):
     return papers
 
 
-def match_title_in_citegraph(cursor, title):
+def match_title_with_dois_in_citegraph(cursor, title):
     cursor.execute("""
-        SELECT id, ctitle
-        FROM clusters
-        WHERE ctitle = %s;""", (title,))
+        SELECT clusters.id, ctitle
+        FROM clusters, papers
+        WHERE ctitle = %s AND papers.cluster = clusters.id
+        LIMIT 1;""", (title,))
 
     result = cursor.fetchone()
     if result is None:
@@ -117,15 +118,13 @@ def get_ratios_of_matches_in_citegraph(csvwriter, papers):
             csvwriter.writerow([])
 
             #print "TITLE: %s\t%s" % (title, citations)
-            csx_clusterid, csx_title = match_title_in_citegraph(cursor, title)
+            csx_clusterid, csx_title = match_title_with_dois_in_citegraph(cursor, title)
             if csx_clusterid is None:
-                continue
-            dois = get_paper_dois_in_citegraph(cursor, csx_clusterid)
-            if not dois:
                 continue
             num_matched_clusters += 1
             #print "CSX CLUSTER %d\tTITLE: %s" % (csx_clusterid, csx_title)
 
+            dois = get_paper_dois_in_citegraph(cursor, csx_clusterid)
             csvwriter.writerow(['Cluster ID', csx_clusterid])
             csvwriter.writerow(['DOI'] + dois)
             csvwriter.writerow(['Title', csx_title])
