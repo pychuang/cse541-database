@@ -83,3 +83,10 @@ $ grep WoS result.csv |cut -d , -f 2 > wosids.csv
 ```sh
 $ ./sample-and-match.py -i wos-cs-papers.csv -o result.csv
 ```
+
+
+## Save labeled truth in simpler format
+
+```sh
+$ ./save-labeled-truth.py -i result.csv --posfile positive.csv --negfile negative.csv
+```
