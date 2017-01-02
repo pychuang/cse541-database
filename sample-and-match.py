@@ -24,6 +24,33 @@ def connect_db(config, target):
     return MySQLdb.connect(host=host, user=username, passwd=password, db=database)
 
 
+def get_wos_citation_count(cursor, wos_paperid):
+    cursor.execute("""
+        SELECT COUNT(*)
+        FROM citations
+        WHERE paperid = %s;""", (wos_paperid, ))
+    result = cursor.fetchone()
+    return result[0]
+
+
+def get_wos_not_null_citation_count(cursor, wos_paperid):
+    cursor.execute("""
+        SELECT COUNT(*)
+        FROM citations
+        WHERE paperid = %s AND citedTitle IS NOT NULL;""", (wos_paperid, ))
+    result = cursor.fetchone()
+    return result[0]
+
+
+def get_cg_citation_count(cursor, cg_clusterid):
+    cursor.execute("""
+        SELECT COUNT(*)
+        FROM citegraph
+        WHERE citing = %s;""", (cg_clusterid, ))
+    result = cursor.fetchone()
+    return result[0]
+
+
 def high_jaccard(wos_paper, cg_cluster):
     normalized_wos_title = utils.normalize_query_string(wos_paper.title)
     normalized_cluster_title = utils.normalize_query_string(cg_cluster.title)
@@ -100,7 +127,9 @@ def match(csvwriter, wos_paperid, threshold):
 
     authors = wos_paper.get_authors(wos_cursor)
     print("WOS: %s" % wos_paper)
-    csvwriter.writerow(['#####', None, None, wos_paper.paper_id, wos_paper.title, wos_paper.year] + authors)
+    citation_count = get_wos_citation_count(wos_cursor, wos_paperid)
+    not_null_citation_count = get_wos_not_null_citation_count(wos_cursor, wos_paperid)
+    csvwriter.writerow(['#####', None, None, wos_paper.paper_id, citation_count, not_null_citation_count, wos_paper.title, wos_paper.year] + authors)
 
     # match title
     cg_clusters = csx.CgCluster.find_clusters_by_title_on_solr_imprecise(solr_url, wos_paper.title)
@@ -133,14 +162,15 @@ def match(csvwriter, wos_paperid, threshold):
         else:
             we_selected = None
 
-        csvwriter.writerow([None, cornelia_selected, we_selected, cg_cluster.paper_id, cg_cluster.title, cg_cluster.year] + authors + dois)
+        citation_count = get_cg_citation_count(cg_cursor, cg_cluster.paper_id)
+        csvwriter.writerow([None, cornelia_selected, we_selected, cg_cluster.paper_id, citation_count, None, cg_cluster.title, cg_cluster.year] + authors + dois)
 
     print('#####')
     return True
 
 
 def sampling(csvwriter, wos_paperids, nsamples, threshold):
-    csvwriter.writerow(['Truth', 'Cornelia', 'Ours', 'ID', 'Title', 'Year'])
+    csvwriter.writerow(['Truth', 'Cornelia', 'Ours', 'ID', '#Citation', '#NotNull', 'Title', 'Year'])
     random.shuffle(wos_paperids)
     count = 0
     for wos_paperid in wos_paperids:
