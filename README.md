@@ -78,6 +78,12 @@ $ ./sample-with-cornelia-method.py -i wos-cs-papers.csv -o result.csv
 $ grep WoS result.csv |cut -d , -f 2 > wosids.csv
 ```
 
+## Filter out WoS papers without titles
+
+```sh
+$ ./filter-wos-no-title.py -i wos-cs-papers.csv -o wos-cs-papers-title-not-null.csv
+```
+
 ## Sample papers using both Cornelia's method and our method
 
 ```sh
