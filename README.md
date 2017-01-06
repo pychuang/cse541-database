@@ -101,3 +101,15 @@ $ ./save-labeled-truth.py -i result.csv --posfile positive.csv --negfile negativ
 ```sh
 $ ./apply-truth-labels.py -i 1000result.csv -o result.csv --posfile positive.csv --negfile negative.csv
 ```
+
+## Extract WoS uids from result CSV file
+
+```sh
+$ grep "#####" 1000result-citecount.csv | cut -d , -f 4 > 1000-samples.csv
+```
+
+## Sample more
+
+```sh
+$ ./sample-more.py -i wos-cs-papers.csv -I 1000-samples.csv -o 3000-samples.csv -n 3000
+```
