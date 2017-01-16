@@ -119,3 +119,9 @@ $ ./sample-more.py -i wos-cs-papers.csv -I 1000-samples.csv -o 3000-samples.csv 
 ```sh
 $ ./calc-overlap.py *.csv
 ```
+
+## Calculate the precision, recall and F1 for all fields
+
+```sh
+$ ./calc-precision-recall.py *.csv
+```
