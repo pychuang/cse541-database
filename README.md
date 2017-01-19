@@ -125,3 +125,9 @@ $ ./calc-overlap.py *.csv
 ```sh
 $ ./calc-precision-recall.py *.csv
 ```
+
+## Calculate the precision, recall and F1 for title matching ORed citation matching
+
+```sh
+$ ./calc-precision-recall-ORed-tjc.py *.csv -n 6
+```
