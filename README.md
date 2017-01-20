@@ -113,3 +113,15 @@ $ grep "#####" 1000result-citecount.csv | cut -d , -f 4 > 1000-samples.csv
 ```sh
 $ ./sample-more.py -i wos-cs-papers.csv -I 1000-samples.csv -o 3000-samples.csv -n 3000
 ```
+
+## Calculate overlap ratio of WoS
+
+```sh
+$ ./calc-overlap.py *.csv
+```
+
+## Calculate the precision, recall and F1 for all fields
+
+```sh
+$ ./calc-precision-recall.py *.csv
+```
