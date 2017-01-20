@@ -101,15 +101,12 @@ def infer_clusters_by_cgcount(wos_paperid, citeinfo, jaccard_threshold):
 
     candidate_cg_cluster_id_counter = collections.defaultdict(int)
     for wos_citation, candidates in citeinfo.items():
-        count = 0
         cg_citing_clusters_ids_set = set()
         for candidate in candidates:
             if candidate['jaccard'] < jaccard_threshold:
                 continue
-            count += 1
             cg_citing_clusters_ids = candidate['citing_clusters_ids']
             cg_citing_clusters_ids_set.update(cg_citing_clusters_ids)
-        #print("\t\tCG: %d citations being considered" % count)
 
         for cg_citing_cluster_id in cg_citing_clusters_ids_set:
             candidate_cg_cluster_id_counter[cg_citing_cluster_id] += 1
@@ -119,7 +116,7 @@ def infer_clusters_by_cgcount(wos_paperid, citeinfo, jaccard_threshold):
     wos_notnull_citation_count = len(citeinfo)
     cg_clusters_and_ratio = {}
     for cg_cluster_id, count in candidate_cg_cluster_id_counter.items():
-        if count < wos_notnull_citation_count * 0.6:
+        if count < wos_notnull_citation_count * 0.5:
             continue
         cg_cluster = csx.CgCluster.get_cluster_by_id(cg_cursor, cg_cluster_id)
         cg_clusters_and_ratio[cg_cluster] = (count, count / wos_citation_count, count / wos_notnull_citation_count)
@@ -145,7 +142,7 @@ def match(csvwriter, wos_paperid):
     # match title
     t_candidate_clusters = title_match(wos_paper)
 
-    # match title
+    # match citation
     citeinfo = citation_match(wos_paper)
     cjc6_candidate_clusters_and_ratio = infer_clusters_by_cgcount(wos_paperid, citeinfo, 0.6)
     cjc6_candidate_clusters = cjc6_candidate_clusters_and_ratio.keys()
