@@ -2,46 +2,46 @@
 
 import argparse
 import csv
-import sys
 
 
-def convert(s):
-    if not s:
-        return False
-    return bool(int(s))
+def process_file(fname, poscsvwriter, negcsvwriter):
+    with open(fname) as f:
+        csvreader = csv.reader(f)
+        fieldnames = next(csvreader)
+        fnmap = {}
+        for i, fn in enumerate(fieldnames):
+            fnmap[fn] = i
+
+        for row in csvreader:
+            if row[fnmap['Truth']] == '#####':
+                wos_paper_id = row[fnmap['ID']]
+                continue
+
+            cluster_id = row[fnmap['ID']]
+
+            if row[fnmap['Truth']] == '1':
+                poscsvwriter.writerow([wos_paper_id, cluster_id])
+            elif row[fnmap['Truth']] == '0':
+                negcsvwriter.writerow([wos_paper_id, cluster_id])
+            else:
+                exit("parse error in %s" % fname)
 
 
 def main(args):
-    if args.infile:
-        inf = open(args.infile)
-    else:
-        inf = sys.stdin
-
     posfile = open(args.posfile, 'w')
     negfile = open(args.negfile, 'w')
     poscsvwriter = csv.writer(posfile)
     negcsvwriter = csv.writer(negfile)
 
-    csvreader = csv.DictReader(inf)
-    for row in csvreader:
-        if row['Truth'] == '#####':
-            wos_paper_id = row['ID']
-            continue
-
-        truth = convert(row['Truth'])
-        cluster_id = row['ID']
-
-        if truth:
-            poscsvwriter.writerow([wos_paper_id, cluster_id])
-        else:
-            negcsvwriter.writerow([wos_paper_id, cluster_id])
+    for infile in args.infiles:
+        process_file(infile, poscsvwriter, negcsvwriter)
 
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Process labeled result CSV and save labeled truth in simpler format.')
-    parser.add_argument('-i', '--infile', help='input CSV file of labeled result')
     parser.add_argument('-p', '--posfile', required=True, help='output CSV file of positive labels')
     parser.add_argument('-n', '--negfile', required=True, help='output CSV file of negative labels')
+    parser.add_argument('infiles', nargs='+', metavar='INFILE', help='input CSV file of labeled result')
 
     args = parser.parse_args()
     main(args)

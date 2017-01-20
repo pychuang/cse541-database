@@ -93,7 +93,7 @@ $ ./sample-and-match.py -i wos-cs-papers.csv -o result.csv
 ## Save labeled truth in simpler format
 
 ```sh
-$ ./save-labeled-truth.py -i result.csv --posfile positive.csv --negfile negative.csv
+$ ./save-labeled-truth.py --posfile positive.csv --negfile negative.csv *.csv
 ```
 
 ## Apply truth labels to result CSV
