@@ -19,15 +19,18 @@ def process_file(fname, tjc_threshold, not_null_threshold, field, threshold):
 
         for row in csvreader:
             if row[fnmap['Truth']] == '#####':
+                wos_paper_id = row[fnmap['ID']]
                 not_null_citations = int(row[fnmap['#NotNull']])
                 continue
+
+            cg_cluster_id = row[fnmap['ID']]
 
             if row[fnmap['Truth']] == '1':
                 truth = True
             elif row[fnmap['Truth']] == '0':
                 truth = False
             else:
-                exit("parse error in %s" % fname)
+                exit("%s: cluster %s for %s not labeled" % (fname, cg_cluster_id, wos_paper_id))
 
             if float(row[fnmap['tjc']]) >= tjc_threshold:
                 positive = True
@@ -73,7 +76,7 @@ def calculate(infiles, tjc_threshold, not_null_threshold, field, threshold):
 
 
 def main(args):
-    thresholds = [0.6, 0.7, 0.8, 0.9]
+    thresholds = [0.5, 0.6, 0.7, 0.8, 0.9]
 
     # citation matching
     print("Citation Matching with not NULL threshold = %d" % args.not_null_threshold)
