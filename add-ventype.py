@@ -21,6 +21,18 @@ def connect_db(config, target):
     return MySQLdb.connect(host=host, user=username, passwd=password, db=database)
 
 
+def get_cg_ventype(cursor, cg_clusterid):
+    cursor.execute("""
+        SELECT cventype
+        FROM clusters
+        WHERE id = %s;""", (cg_clusterid, ))
+    result = cursor.fetchone()
+    if not result:
+        return None
+
+    return result[0]
+
+
 def process_file(fpath, out_dir):
     print("reading %s" % fpath)
     inf = open(fpath)
@@ -48,7 +60,8 @@ def process_file(fpath, out_dir):
 
         cg_cluster_id = row[fnmap['ID']]
 
-        row.insert(ivtype, None)
+        ventype = get_cg_ventype(cg_cursor, cg_cluster_id)
+        row.insert(ivtype, ventype)
         csvwriter.writerow(row)
 
 
@@ -59,12 +72,11 @@ def main(args, config):
     try:
         wosdb = None
         cgdb = None
-        '''
+
         wosdb = connect_db(config, 'wos')
         cgdb = connect_db(config, 'citegraph')
         wos_cursor = wosdb.cursor()
         cg_cursor = cgdb.cursor()
-        '''
 
         for infile in args.infiles:
             process_file(infile, args.out_dir)
