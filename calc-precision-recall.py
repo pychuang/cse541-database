@@ -83,18 +83,19 @@ def main(args):
     print()
 
     # citation matching
-    print("Citation Matching with not NULL threshold = %d" % args.not_null_threshold)
-    fields = ['cjc0.6nnr', 'cjc0.7nnr', 'cjc0.8nnr', 'cjc0.9nnr', 'cjc0.6r', 'cjc0.7r', 'cjc0.8r', 'cjc0.9r', 'cjc0.6jc', 'cjc0.7jc', 'cjc0.8jc', 'cjc0.9jc']
-    for field in fields:
-        print("[%s]" % field)
-        for threshold in thresholds:
-            calculate(args.infiles, args.not_null_threshold, field, threshold)
-        print()
+    not_null_thresholds = [4, 5, 6, 7, 8]
+    for not_null_threshold in not_null_thresholds:
+        print("Citation Matching with not NULL threshold = %d" % not_null_threshold)
+        fields = ['cjc0.6nnr', 'cjc0.7nnr', 'cjc0.8nnr', 'cjc0.9nnr', 'cjc0.6r', 'cjc0.7r', 'cjc0.8r', 'cjc0.9r', 'cjc0.6jc', 'cjc0.7jc', 'cjc0.8jc', 'cjc0.9jc']
+        for field in fields:
+            print("[%s]" % field)
+            for threshold in thresholds:
+                calculate(args.infiles, not_null_threshold, field, threshold)
+            print()
 
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Calculate the precision, recall and F1 for all fields.')
-    parser.add_argument('-n', '--not-null-threshold', type=int, default=4, help='Threshold for number of citations with non-NULL title')
     parser.add_argument('infiles', nargs='+', metavar='INFILE', help='input CSV file of result')
 
     args = parser.parse_args()
