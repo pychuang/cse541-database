@@ -129,5 +129,5 @@ $ ./calc-precision-recall.py *.csv
 ## Calculate the precision, recall and F1 for title matching ORed citation matching
 
 ```sh
-$ ./calc-precision-recall-ORed-tjc.py *.csv -n 6
+$ ./calc-precision-recall-ORed-tjc.py *.csv
 ```
