@@ -131,3 +131,9 @@ $ ./calc-precision-recall.py *.csv
 ```sh
 $ ./calc-precision-recall-ORed-tjc.py *.csv
 ```
+
+## Calculate the precision, recall and F1 for title matching OR (citation matching AND is JOURNAL)
+
+```sh
+$ ./calc-precision-recall-ORed-tjc-ANDed-journal.py exp4/results-*
+```
