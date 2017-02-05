@@ -143,3 +143,9 @@ $ ./calc-precision-recall-ORed-tjc-ANDed-journal.py exp4/results-*
 ```sh
 $ ./calc-vtype.py exp4/results-*
 ```
+
+## Plot plots about citations
+
+```sh
+$ ./plot-citation-stats.py exp4/results-*
+```
