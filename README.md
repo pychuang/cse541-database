@@ -137,3 +137,9 @@ $ ./calc-precision-recall-ORed-tjc.py *.csv
 ```sh
 $ ./calc-precision-recall-ORed-tjc-ANDed-journal.py exp4/results-*
 ```
+
+## Calculate the distribution of venue types of matched clusters
+
+```sh
+$ ./calc-vtype.py exp4/results-*
+```
