@@ -34,6 +34,8 @@ def process_file(fname, tjc_threshold, not_null_threshold, field, threshold):
 
             if float(row[fnmap['tjc']]) >= tjc_threshold:
                 positive = True
+            elif row[fnmap['VType']] != 'JOURNAL':
+                positive = False
             elif not_null_citations < not_null_threshold:
                 positive = False
             elif not row[fnmap[field]]:
@@ -81,7 +83,7 @@ def main(args):
     # citation matching
     not_null_thresholds = [4, 5, 6, 7, 8]
     for not_null_threshold in not_null_thresholds:
-        print("Title Matching OR Citation Matching with not NULL threshold = %d" % not_null_threshold)
+        print("Title Matching OR (Citation Matching with not NULL threshold = %d AND type JOURNAL)" % not_null_threshold)
         fields = ['cjc0.6nnr', 'cjc0.7nnr', 'cjc0.8nnr', 'cjc0.9nnr', 'cjc0.6r', 'cjc0.7r', 'cjc0.8r', 'cjc0.9r', 'cjc0.6jc', 'cjc0.7jc', 'cjc0.8jc', 'cjc0.9jc']
         for field in fields:
             print("[%s]" % field)
@@ -91,7 +93,7 @@ def main(args):
 
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description='Calculate the precision, recall and F1 for title matching ORed citation matching.')
+    parser = argparse.ArgumentParser(description='Calculate the precision, recall and F1 for title matching OR (citation matching AND is JOURNAL).')
     parser.add_argument('-t', '--tjc-threshold', type=float, default=0.7, help='Threshold for title matching')
     parser.add_argument('infiles', nargs='+', metavar='INFILE', help='input CSV file of result')
 

@@ -129,5 +129,23 @@ $ ./calc-precision-recall.py *.csv
 ## Calculate the precision, recall and F1 for title matching ORed citation matching
 
 ```sh
-$ ./calc-precision-recall-ORed-tjc.py *.csv -n 6
+$ ./calc-precision-recall-ORed-tjc.py *.csv
+```
+
+## Calculate the precision, recall and F1 for title matching OR (citation matching AND is JOURNAL)
+
+```sh
+$ ./calc-precision-recall-ORed-tjc-ANDed-journal.py exp4/results-*
+```
+
+## Calculate the distribution of venue types of matched clusters
+
+```sh
+$ ./calc-vtype.py exp4/results-*
+```
+
+## Plot plots about citations
+
+```sh
+$ ./plot-citation-stats.py exp4/results-*
 ```
