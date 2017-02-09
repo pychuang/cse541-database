@@ -149,3 +149,9 @@ $ ./calc-vtype.py exp4/results-*
 ```sh
 $ ./plot-citation-stats.py exp4/results-*
 ```
+
+## Save SQL query to CSV file
+
+```sh
+$ ./save-query.py -o test.csv "select * from papers limit 10;"
+```
