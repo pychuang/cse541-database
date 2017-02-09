@@ -155,3 +155,9 @@ $ ./plot-citation-stats.py exp4/results-*
 ```sh
 $ ./save-query.py -o test.csv "select * from papers limit 10;"
 ```
+
+## Plot 100 manually labeled results
+
+```sh
+./plot-100-manual-label-results.py -i expresults/100-title-matched-papers-summarize-results.csv
+```
