@@ -35,7 +35,7 @@ def get_wos_paper_citations(cursor, paperid):
         WHERE paperid = %s;""", (paperid,))
 
     result = cursor.fetchall()
-    return [d[0] for d in result if d[0] is not None]
+    return [d[0] for d in result]
 
 
 def get_wos_papers(paperids):
@@ -82,6 +82,8 @@ def get_ratios_of_matches_in_citegraph(papers):
 
             num_citations += len(citations)
             for t in citations:
+                if not t:
+                    continue
                 c, _ = match_title_in_citegraph(cursor, t)
                 if c is None:
                     continue
