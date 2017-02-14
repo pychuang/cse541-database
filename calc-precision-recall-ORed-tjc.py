@@ -5,7 +5,7 @@ import csv
 import sys
 
 
-def process_file(fname, tjc_threshold, not_null_threshold, field, threshold):
+def process_file(fname, tjc_threshold, not_null_threshold, not_null_ratio_threshold, field, threshold):
     true_pos = 0
     false_pos = 0
     false_neg = 0
@@ -20,7 +20,12 @@ def process_file(fname, tjc_threshold, not_null_threshold, field, threshold):
         for row in csvreader:
             if row[fnmap['Truth']] == '#####':
                 wos_paper_id = row[fnmap['ID']]
+                all_citations = int(row[fnmap['#Citation']])
                 not_null_citations = int(row[fnmap['#NotNull']])
+                if all_citations:
+                    not_null_ratio = not_null_citations / all_citations
+                else:
+                    not_null_ratio = 0
                 continue
 
             cg_cluster_id = row[fnmap['ID']]
@@ -35,6 +40,8 @@ def process_file(fname, tjc_threshold, not_null_threshold, field, threshold):
             if float(row[fnmap['tjc']]) >= tjc_threshold:
                 positive = True
             elif not_null_citations < not_null_threshold:
+                positive = False
+            elif not_null_ratio < not_null_ratio_threshold:
                 positive = False
             elif not row[fnmap[field]]:
                 positive = False
@@ -55,13 +62,13 @@ def process_file(fname, tjc_threshold, not_null_threshold, field, threshold):
     return true_pos, false_pos, false_neg
 
 
-def calculate(infiles, tjc_threshold, not_null_threshold, field, threshold):
+def calculate(infiles, tjc_threshold, not_null_threshold, not_null_ratio_threshold, field, threshold):
     true_pos = 0
     false_pos = 0
     false_neg = 0
 
     for infile in infiles:
-        tp, fp, fn = process_file(infile, tjc_threshold, not_null_threshold, field, threshold)
+        tp, fp, fn = process_file(infile, tjc_threshold, not_null_threshold, not_null_ratio_threshold, field, threshold)
         true_pos += tp
         false_pos += fp
         false_neg += fn
@@ -80,14 +87,16 @@ def main(args):
 
     # citation matching
     not_null_thresholds = [4, 5, 6, 7, 8]
+    not_null_ratio_thresholds = [0, 0.5, 0.6, 0.7, 0.8, 0.9]
     for not_null_threshold in not_null_thresholds:
-        print("Title Matching OR Citation Matching with not NULL threshold = %d" % not_null_threshold)
-        fields = ['cjc0.6nnr', 'cjc0.7nnr', 'cjc0.8nnr', 'cjc0.9nnr', 'cjc0.6r', 'cjc0.7r', 'cjc0.8r', 'cjc0.9r', 'cjc0.6jc', 'cjc0.7jc', 'cjc0.8jc', 'cjc0.9jc']
-        for field in fields:
-            print("[%s]" % field)
-            for threshold in thresholds:
-                calculate(args.infiles, args.tjc_threshold, not_null_threshold, field, threshold)
-            print()
+        for not_null_ratio_threshold in not_null_ratio_thresholds:
+            print("Title Matching OR Citation Matching with not NULL threshold = %d, not NULL ratio threshold = %.1f" % (not_null_threshold, not_null_ratio_threshold))
+            fields = ['cjc0.6nnr', 'cjc0.7nnr', 'cjc0.8nnr', 'cjc0.9nnr', 'cjc0.6r', 'cjc0.7r', 'cjc0.8r', 'cjc0.9r', 'cjc0.6jc', 'cjc0.7jc', 'cjc0.8jc', 'cjc0.9jc']
+            for field in fields:
+                print("[%s]" % field)
+                for threshold in thresholds:
+                    calculate(args.infiles, args.tjc_threshold, not_null_threshold, not_null_ratio_threshold, field, threshold)
+                print()
 
 
 if __name__ == '__main__':
