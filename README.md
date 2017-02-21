@@ -168,6 +168,12 @@ $ ./save-query.py -o test.csv "select * from papers limit 10;"
 $ ./calc-dblp-stats.py -i dblp/dblp.xml
 ```
 
+## Estimate the percentage of papers in DBLP being in CiteSeerX by sampling
+
+```sh
+$ ./sample-dblp-paper-in-citeseerx.py -i dblp/dblp.xml
+```
+
 # DBLP dataset
 
 ```sh
