@@ -161,3 +161,22 @@ $ ./save-query.py -o test.csv "select * from papers limit 10;"
 ```sh
 ./plot-100-manual-label-results.py -i expresults/100-title-matched-papers-summarize-results.csv
 ```
+
+## Calculate statistics of DBLP
+
+```sh
+$ ./calc-dblp-stats.py -i dblp/dblp.xml
+```
+
+## Estimate the percentage of papers in DBLP being in CiteSeerX by sampling
+
+```sh
+$ ./sample-dblp-paper-in-citeseerx.py -i dblp/dblp.xml
+```
+
+# DBLP dataset
+
+```sh
+$ wget http://dblp.uni-trier.de/xml/dblp.xml.gz
+$ wget http://dblp.uni-trier.de/xml/dblp.dtd
+```
