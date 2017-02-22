@@ -84,17 +84,16 @@ def calculate(infiles, not_null_threshold, not_null_ratio_threshold, field, thre
 
 def main(args):
     thresholds = [0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9]
-
-    # title matching
-    print("[tjc]")
-    for threshold in thresholds:
-        calculate(args.infiles, 0, 0, 'tjc', threshold)
-    print()
-
-    # citation matching
     not_null_ratio_thresholds = [0.5, 0.6, 0.7, 0.8, 0.9]
     not_null_thresholds = [4, 5, 6, 7, 8]
     for not_null_ratio_threshold in not_null_ratio_thresholds:
+        # title matching
+        print("Title Matching with not NULL ratio threshold = %.1f" % not_null_ratio_threshold)
+        for threshold in thresholds:
+            calculate(args.infiles, 0, not_null_ratio_threshold, 'tjc', threshold)
+        print()
+
+        # citation matching
         for not_null_threshold in not_null_thresholds:
             print("Citation Matching with not NULL threshold = %d, not NULL ratio threshold = %.1f" % (not_null_threshold, not_null_ratio_threshold))
             fields = ['cjc0.6nnr', 'cjc0.7nnr', 'cjc0.8nnr', 'cjc0.9nnr', 'cjc0.6r', 'cjc0.7r', 'cjc0.8r', 'cjc0.9r', 'cjc0.6jc', 'cjc0.7jc', 'cjc0.8jc', 'cjc0.9jc']
