@@ -26,7 +26,7 @@ def main(args):
             fnmap[fn] = i
 
         for row in csvreader:
-            w = convert(row, fnmap, 'matched/WoS')
+            w = convert(row, fnmap, 'WoS matched ratio')
             c = convert(row, fnmap, 'matched/CSX')
             j = convert(row, fnmap, 'Jaccard')
 
