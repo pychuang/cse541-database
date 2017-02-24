@@ -31,6 +31,7 @@ def main(args):
                 print(count, file=sys.stderr, end='\r')
                 sys.stderr.flush()
 
+    print("Totally %d records" % count)
     print(stats)
 
     sorted_stats = sorted(stats.items(), reverse=True, key=operator.itemgetter(1))
