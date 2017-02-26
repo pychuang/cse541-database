@@ -10,32 +10,31 @@ import sys
 
 
 def main(args):
-    i_x, i_c, i_y = args.columns
-
     data = []
     print("processing %s" % args.infile)
+
+    print("Measure: %s\tX: %s\tC: %s\tY: %s" % (args.measure, args.x, args.c, args.y))
+
     with open(args.infile) as f:
         csvreader = csv.reader(f)
         fieldnames = next(csvreader)
+        fnmap = {}
+        for i, fn in enumerate(fieldnames):
+            fnmap[fn] = i
 
-        measures = {}
+        i_x = fnmap[args.x]
+        i_y = fnmap[args.y]
+        i_c = fnmap[args.c]
+
         for row in csvreader:
-            m = row[0]
-            if m not in measures:
-                measures[m] = len(measures)
-                if measures[m] == args.measure:
-                    print("Measure: %s" % m)
-            if measures[m] != args.measure:
+            if row[fnmap['Measure']] != args.measure:
                 continue
 
             if row[i_y] == '':
                 continue
 
-            d = [row[i] for i in args.columns]
+            d = [row[i] for i in (i_x, i_c, i_y)]
             data.append(d)
-
-    print("X: %s" % fieldnames[i_x])
-    print("Color: %s" % fieldnames[i_c])
 
     vmin = min(d[1] for d in data)
     vmax = max(d[1] for d in data)
@@ -68,10 +67,12 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Plot summary.')
     parser.add_argument('-i', '--infile', required=True, help='input CSV file of summary')
     parser.add_argument('-o', '--outfile', help='output PNG file')
+    parser.add_argument('-x', required=True, help='Column name for X axis')
+    parser.add_argument('-y', required=True, help='Column name for Y axis')
+    parser.add_argument('-c', required=True, help='Column name for color')
+    parser.add_argument('-m', '--measure', required=True, help='type of Measure')
     parser.add_argument('-n', '--no-show', action='store_true', help='do not show the plot')
-    parser.add_argument('-m', '--measure', type=int, required=True, help='type of Measure: 0, 1, 2...')
     parser.add_argument('-t', '--title', help='Title for the diagram')
-    parser.add_argument('columns', nargs=3, metavar='COLUMN', type=int, help='list of columns to be used: X, C, Y')
 
     args = parser.parse_args()
     main(args)
