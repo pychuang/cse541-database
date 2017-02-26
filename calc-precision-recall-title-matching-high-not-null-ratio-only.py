@@ -84,7 +84,7 @@ def calculate(infiles, not_null_threshold, not_null_ratio_threshold, field, thre
 
 def main(args):
     thresholds = [0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9]
-    not_null_ratio_thresholds = [0.5, 0.6, 0.7, 0.8, 0.9]
+    not_null_ratio_thresholds = [0.5, 0.6, 0.7, 0.8, 0.9, 1.0]
     for not_null_ratio_threshold in not_null_ratio_thresholds:
         # title matching
         print("Title Matching with not NULL ratio threshold = %.1f" % not_null_ratio_threshold)

@@ -88,7 +88,7 @@ def main(args):
     measures = {'nnr': 'non-NULL matched ratio', 'r': 'matched ratio', 'jc': 'jaccard'}
     citation_title_jaccards = ['0.6', '0.7', '0.8', '0.9']
     not_null_thresholds = [4, 5, 6, 7, 8]
-    not_null_ratio_thresholds = [0, 0.5, 0.6, 0.7, 0.8, 0.9]
+    not_null_ratio_thresholds = [0, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]
     thresholds = [0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9]
 
     csvwriter.writerow(['Measure', 'Threshold', 'Citation Title Jaccard', 'non-NULL', 'non-NULL ratio', 'Precision', 'Recall', 'F1', 'True Pos', 'False Pos', 'False Neg'])
