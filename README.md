@@ -174,6 +174,12 @@ $ ./calc-dblp-stats.py -i dblp/dblp.xml
 $ ./sample-dblp-paper-in-citeseerx.py -i dblp/dblp.xml
 ```
 
+## Plot summary
+
+```sh
+./plot-summary.py -i summary-citation-matching.csv -m 2 -t "Precision of Citation Matching (Jaccard of citations)" -o summary_plots/citation-matching-precision-t-j.png 1 2 5 --no-show
+```
+
 # DBLP dataset
 
 ```sh
