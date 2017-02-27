@@ -1,6 +1,7 @@
 .*
 *.pyc
 *.csv
+*.png
 config.ini
 
 !.gitignore
