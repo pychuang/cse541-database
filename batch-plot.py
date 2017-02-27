@@ -29,14 +29,15 @@ def main(args):
     os.makedirs(dirpath, exist_ok=True)
 
     title_template = "%s of %s"
-    measure = 'jaccard'
+    measure_full = {'jaccard': 'jaccard', 'nnmr': 'non-NULL matched ratio', 'mr': 'matched ratio'}
+    measure = measure_full[args.measure]
     ys = ['Precision', 'Recall', 'F1']
     field_abbrev = {'Threshold': 't', 'Title Jaccard': 'T', 'Citation Title Jaccard': 'j', 'non-NULL': 'n', 'non-NULL ratio': 'r'}
 
     for y in ys:
         for x, c in itertools.permutations(target_fields, 2):
             title = title_template % (y, args.title_description)
-            filename = "%s-%s-%s-%s-%s.png" % (args.prefix, measure, y.lower(), field_abbrev[x], field_abbrev[c])
+            filename = "%s-%s-%s-%s.png" % (args.prefix, y.lower(), field_abbrev[x], field_abbrev[c])
             outpath = os.path.join(dirpath, filename)
 
             cmd = ['./plot-summary.py', '-i', args.summary_file_name, '-m', measure, '-t', title, '-o', outpath, '-x', x, '-c', c, '-y', y, '--no-show']
@@ -50,6 +51,7 @@ if __name__ == '__main__':
     parser.add_argument('-t', '--title-description', required=True, help='second part of title')
     parser.add_argument('-b', '--output-basedir', required=True, help='output base directory')
     parser.add_argument('-p', '--prefix', required=True, help='prefix for output directory and file name')
+    parser.add_argument('-m', '--measure', required=True, help='measure abbrev')
 
     args = parser.parse_args()
     main(args)
