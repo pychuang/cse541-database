@@ -86,12 +86,13 @@ def main(args):
     csvwriter = csv.writer(outf)
 
     measures = {'nnr': 'non-NULL matched ratio', 'r': 'matched ratio', 'jc': 'jaccard'}
+    title_jaccards = [0.7, 0.8, 0.9]
     citation_title_jaccards = ['0.6', '0.7', '0.8', '0.9']
     not_null_thresholds = [4, 5, 6, 7, 8]
     not_null_ratio_thresholds = [0, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]
     thresholds = [0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9]
 
-    csvwriter.writerow(['Measure', 'Threshold', 'Citation Title Jaccard', 'non-NULL', 'non-NULL ratio', 'Precision', 'Recall', 'F1', 'True Pos', 'False Pos', 'False Neg'])
+    csvwriter.writerow(['Measure', 'Threshold', 'Title Jaccard', 'Citation Title Jaccard', 'non-NULL', 'Precision', 'Recall', 'F1', 'True Pos', 'False Pos', 'False Neg'])
 
     for measure, measure_name in measures.items():
         for cjc in citation_title_jaccards:
@@ -99,12 +100,12 @@ def main(args):
             field = 'cjc' + cjc + measure
             print("[%s]" % field)
 
-            for not_null_threshold in not_null_thresholds:
-                for not_null_ratio_threshold in not_null_ratio_thresholds:
-                    print("not NULL threshold = %d, not NULL ratio threshold = %.1f" % (not_null_threshold, not_null_ratio_threshold))
+            for tjc_threshold in title_jaccards:
+                for not_null_threshold in not_null_thresholds:
+                    print("title jaccard = %.1f, not NULL threshold = %d" % (tjc_threshold, not_null_threshold))
 
                     for threshold in thresholds:
-                        true_pos, false_pos, false_neg = calculate(args.infiles, args.tjc_threshold, not_null_threshold, not_null_ratio_threshold, field, threshold)
+                        true_pos, false_pos, false_neg = calculate(args.infiles, tjc_threshold, not_null_threshold, args.not_null_ratio_threshold, field, threshold)
 
                         recall = true_pos / (true_pos + false_neg)
                         if true_pos + false_pos == 0:
@@ -116,14 +117,14 @@ def main(args):
                             f1 = 2 * precision * recall / (precision + recall)
                             print("threshold %.1f: precision = %.2f, recall = %.2f, F1 = %.3f (TP = %4d, FP = %4d, FN = %4d)" % (threshold, precision, recall, f1, true_pos, false_pos, false_neg))
 
-                        csvwriter.writerow([measure_name, threshold, cjc, not_null_threshold, not_null_ratio_threshold, precision, recall, f1, true_pos, false_pos, false_neg])
+                        csvwriter.writerow([measure_name, threshold, tjc_threshold, cjc, not_null_threshold, precision, recall, f1, true_pos, false_pos, false_neg])
             print()
 
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Calculate the precision, recall and F1 for title matching ORed citation matching.')
     parser.add_argument('-o', '--outfile', help='output CSV file of sample results')
-    parser.add_argument('-t', '--tjc-threshold', type=float, default=0.7, help='Threshold for title matching')
+    parser.add_argument('-n', '--not-null-ratio-threshold', type=float, required=True, help='not NULL ratio threshold')
     parser.add_argument('infiles', nargs='+', metavar='INFILE', help='input CSV file of result')
 
     args = parser.parse_args()
