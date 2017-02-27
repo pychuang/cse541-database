@@ -120,16 +120,28 @@ $ ./sample-more.py -i wos-cs-papers.csv -I 1000-samples.csv -o 3000-samples.csv 
 $ ./calc-overlap.py *.csv
 ```
 
-## Calculate the precision, recall and F1 for all fields
+## Calculate the precision, recall and F1 for title matching
 
 ```sh
-$ ./calc-precision-recall.py *.csv
+./calc-precision-recall-title-matching.py exp4/results-*
 ```
 
-## Calculate the precision, recall and F1 for title matching ORed citation matching
+## Calculate the precision, recall and F1 for title matching (high not NULL ratio only)
 
 ```sh
-$ ./calc-precision-recall-ORed-tjc.py *.csv
+./calc-precision-recall-title-matching-high-not-null-ratio-only.py exp4/results-*
+```
+
+## Calculate the precision, recall and F1 for citation matching
+
+```sh
+$ ./calc-precision-recall-citation-matching.py exp4/results-* -o summary-citation-matching.csv
+```
+
+## Calculate the precision, recall and F1 for title matching OR citation matching
+
+```sh
+$ ./calc-precision-recall-title-OR-citation-matching.py exp4/results-* -o summary-title-OR-citation-matching.csv
 ```
 
 ## Calculate the precision, recall and F1 for title matching OR (citation matching AND is JOURNAL)
