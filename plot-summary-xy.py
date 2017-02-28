@@ -27,7 +27,7 @@ def main(args):
         i_c = fnmap[args.c]
 
         for row in csvreader:
-            if row[fnmap['Measure']] != args.measure:
+            if 'Measure' in fnmap and row[fnmap['Measure']] != args.measure:
                 continue
 
             if row[i_x] == '' or row[i_c] == '' or row[i_y] == '':
@@ -64,7 +64,7 @@ if __name__ == '__main__':
     parser.add_argument('-x', required=True, help='Column name for X axis')
     parser.add_argument('-y', required=True, help='Column name for Y axis')
     parser.add_argument('-c', required=True, help='Column name for color')
-    parser.add_argument('-m', '--measure', required=True, help='type of Measure')
+    parser.add_argument('-m', '--measure', help='type of Measure')
     parser.add_argument('-n', '--no-show', action='store_true', help='do not show the plot')
     parser.add_argument('-t', '--title', help='Title for the diagram')
 
