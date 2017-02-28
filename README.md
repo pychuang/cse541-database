@@ -192,6 +192,12 @@ $ ./sample-dblp-paper-in-citeseerx.py -i dblp/dblp.xml
 $ ./plot-summary.py -i summary-citation-matching.csv -m jaccard -t "Precision of Citation Matching" -o test.png -x Threshold -c "Citation Title Jaccard" -y Precision
 ```
 
+## Output rows with best scores in summary CSV
+
+```sh
+$ ./show-best-in-summary.py -i summary-citation-matching.csv -m jaccard -t F1 -n 10 -o test.csv
+```
+
 # DBLP dataset
 
 ```sh
