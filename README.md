@@ -123,13 +123,13 @@ $ ./calc-overlap.py *.csv
 ## Calculate the precision, recall and F1 for title matching
 
 ```sh
-./calc-precision-recall-title-matching.py exp4/results-*
+$ ./calc-precision-recall-title-matching.py exp4/results-*
 ```
 
 ## Calculate the precision, recall and F1 for title matching (high not NULL ratio only)
 
 ```sh
-./calc-precision-recall-title-matching-high-not-null-ratio-only.py exp4/results-*
+$ ./calc-precision-recall-title-matching-high-not-null-ratio-only.py exp4/results-*
 ```
 
 ## Calculate the precision, recall and F1 for citation matching
@@ -171,7 +171,7 @@ $ ./save-query.py -o test.csv "select * from papers limit 10;"
 ## Plot 100 manually labeled results
 
 ```sh
-./plot-100-manual-label-results.py -i expresults/100-title-matched-papers-summarize-results.csv
+$ ./plot-100-manual-label-results.py -i expresults/100-title-matched-papers-summarize-results.csv
 ```
 
 ## Calculate statistics of DBLP
@@ -189,7 +189,7 @@ $ ./sample-dblp-paper-in-citeseerx.py -i dblp/dblp.xml
 ## Plot summary
 
 ```sh
-./plot-summary.py -i summary-citation-matching.csv -m 2 -t "Precision of Citation Matching (Jaccard of citations)" -o summary_plots/citation-matching-precision-t-j.png 1 2 5 --no-show
+$ ./plot-summary.py -i summary-citation-matching.csv -m jaccard -t "Precision of Citation Matching" -o test.png -x Threshold -c "Citation Title Jaccard" -y Precision
 ```
 
 # DBLP dataset
