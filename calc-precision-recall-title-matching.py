@@ -2,7 +2,7 @@
 
 import argparse
 import csv
-import sys
+import os
 
 
 def process_file(fname, not_null_threshold, not_null_ratio_threshold, field, threshold):
@@ -71,6 +71,8 @@ def calculate(infiles, not_null_threshold, not_null_ratio_threshold, field, thre
         false_pos += fp
         false_neg += fn
 
+    return true_pos, false_pos, false_neg
+
     recall = true_pos / (true_pos + false_neg)
     if true_pos + false_pos == 0:
         print("threshold %.1f: precision =  N/A, recall = %.2f, F1 =   N/A (TP = %4d, FP = %4d, FN = %4d)" % (threshold, recall, true_pos, false_pos, false_neg))
@@ -81,17 +83,36 @@ def calculate(infiles, not_null_threshold, not_null_ratio_threshold, field, thre
 
 
 def main(args):
+    if args.outfile:
+        outf = open(args.outfile, 'w')
+    else:
+        outf = open(os.devnull, 'w')
+    csvwriter = csv.writer(outf)
+
     thresholds = [0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9]
 
-    # title matching
-    print("Title matching")
+    csvwriter.writerow(['Threshold', 'Precision', 'Recall', 'F1', 'True Pos', 'False Pos', 'False Neg'])
+
     for threshold in thresholds:
-        calculate(args.infiles, 0, 0, 'tjc', threshold)
+        true_pos, false_pos, false_neg = calculate(args.infiles, 0, 0, 'tjc', threshold)
+
+        recall = true_pos / (true_pos + false_neg)
+        if true_pos + false_pos == 0:
+            print("threshold %.1f: precision =  N/A, recall = %.2f, F1 =   N/A (TP = %4d, FP = %4d, FN = %4d)" % (threshold, recall, true_pos, false_pos, false_neg))
+            precision = None
+            f1 = None
+        else:
+            precision = true_pos / (true_pos + false_pos)
+            f1 = 2 * precision * recall / (precision + recall)
+            print("threshold %.1f: precision = %.2f, recall = %.2f, F1 = %.3f (TP = %4d, FP = %4d, FN = %4d)" % (threshold, precision, recall, f1, true_pos, false_pos, false_neg))
+
+        csvwriter.writerow([threshold, precision, recall, f1, true_pos, false_pos, false_neg])
     print()
 
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Calculate the precision, recall and F1 for all fields.')
+    parser.add_argument('-o', '--outfile', help='output CSV file of sample results')
     parser.add_argument('infiles', nargs='+', metavar='INFILE', help='input CSV file of result')
 
     args = parser.parse_args()

@@ -123,7 +123,7 @@ $ ./calc-overlap.py *.csv
 ## Calculate the precision, recall and F1 for title matching
 
 ```sh
-$ ./calc-precision-recall-title-matching.py exp4/results-*
+$ ./calc-precision-recall-title-matching.py exp4/results-* -o summary-title-matching.csv
 ```
 
 ## Calculate the precision, recall and F1 for title matching (high not NULL ratio only)
