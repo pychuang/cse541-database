@@ -55,18 +55,27 @@ def sampling(cursor, dblp_titles, nsamples):
 
 
 def load_dblp_titles(fname):
-    with open(fname) as f:
-        print("loading %s ..." % args.infile)
-        parser = etree.XMLParser(load_dtd=True)
-        tree = etree.parse(f, parser)
-
-    root = tree.getroot()
-
     titles = []
-    for child in root:
-        title = child.findtext('title')
-        titles.append(title)
+    with open(fname, 'rb') as f:
+        print("loading %s ..." % fname, file=sys.stderr)
+        xmldoc = etree.iterparse(f, load_dtd=True, events=('start', 'end'))
+        _, root = next(xmldoc)
 
+        count = 0
+        current_tag = None
+        for event, elem in xmldoc:
+            if event == 'end' and elem.tag == current_tag:
+                #print(elem.findtext('title'))
+                titles.append(elem.findtext('title'))
+                current_tag = None
+                elem.clear()
+            if event == 'start' and current_tag is None:
+                current_tag = elem.tag
+                count += 1
+
+                print(count, file=sys.stderr, end='\r')
+                sys.stderr.flush()
+        print("Totally %d records" % count)
     return titles
 
 
