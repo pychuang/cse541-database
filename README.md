@@ -186,6 +186,12 @@ $ ./calc-dblp-stats.py -i dblp/dblp.xml
 $ ./sample-dblp-paper-in-citeseerx.py -i dblp/dblp.xml
 ```
 
+## Estimate the percentage of papers in DBLP being in WoS by sampling
+
+```sh
+$ ./sample-dblp-paper-in-wos.py -i dblp/dblp.xml
+```
+
 ## Plot summary
 
 ```sh
