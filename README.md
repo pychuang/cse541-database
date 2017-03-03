@@ -204,6 +204,12 @@ $ ./plot-summary.py -i summary-citation-matching.csv -m jaccard -t "Precision of
 $ ./show-best-in-summary.py -i summary-citation-matching.csv -m jaccard -t F1 -n 10 -o test.csv
 ```
 
+## Summarize best recall
+
+```sh
+./summarize-best-recall.py -m jaccard -i summary-citation-matching.csv -o best-recall-citation-matching.cs
+```
+
 # DBLP dataset
 
 ```sh
