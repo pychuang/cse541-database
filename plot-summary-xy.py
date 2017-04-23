@@ -38,6 +38,9 @@ def main(args):
 
     norm = pc.Normalize(0, 1)
     scm = cm.ScalarMappable(norm)
+    scm.set_array([0,1.0])
+    cb = plt.colorbar(scm)
+    cb.set_label(args.c)
 
     for x, c, y in data:
         color = scm.to_rgba(c)
