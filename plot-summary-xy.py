@@ -44,7 +44,7 @@ def main(args):
 
     for x, c, y in data:
         color = scm.to_rgba(c)
-        plt.plot([x], [y], color=color, marker='+', markeredgecolor=color, markeredgewidth=1)
+        plt.plot([x], [y], color=color, marker='+', markeredgecolor=color, markeredgewidth=2)
 
     if args.title:
         plt.title(args.title)
