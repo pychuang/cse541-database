@@ -192,6 +192,12 @@ $ ./sample-dblp-paper-in-citeseerx.py -i dblp/dblp.xml
 $ ./sample-dblp-paper-in-wos.py -i dblp/dblp.xml
 ```
 
+## Plot WoS document types distribution
+
+```sh
+$ ./plot-wos-doctypes.py -i wos-doctype.csv -n 10
+```
+
 ## Plot summary
 
 ```sh
