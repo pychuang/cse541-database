@@ -50,6 +50,7 @@ def main(args):
     print("%d WoS papers have no citation" % citation_counts.count(0))
     print("%d WoS papers have no non-NULL citations" % not_null.count(0))
     print("%d WoS papers have no NULL citations" % null.count(0))
+    print("totally %d citations; %d (%f) of them are null titled" % (sum(citation_counts), sum(null), sum(null) / sum(citation_counts)))
 
     plt.title('Distribution of number of citations')
     plt.hist(citation_counts, max(citation_counts) + 1, histtype='stepfilled')
