@@ -53,7 +53,9 @@ def main(args):
     print("totally %d citations; %d (%f) of them are null titled" % (sum(citation_counts), sum(null), sum(null) / sum(citation_counts)))
 
     plt.title('Distribution of number of citations')
-    plt.hist(citation_counts, max(citation_counts) + 1, histtype='stepfilled')
+    plt.hist(citation_counts, max(citation_counts) + 10, histtype='stepfilled')
+    plt.xlim(-5, max(citation_counts) + 5)
+    plt.yscale('log')
     plt.xlabel('#citations')
     plt.ylabel('#papers')
     plt.tight_layout()
@@ -77,7 +79,9 @@ def main(args):
     plt.show()
 
     plt.title('Distribution of ratios of citations with non-NULL titles')
-    plt.hist(not_null_ratio, 100, histtype='stepfilled')
+    plt.hist(not_null_ratio, 110, histtype='stepfilled')
+    plt.xlim(-0.05, 1.05)
+    plt.yscale('log')
     plt.xlabel('ratio of citations with non-NULL titles')
     plt.ylabel('#papers')
     plt.tight_layout()
